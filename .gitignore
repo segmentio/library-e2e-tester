@@ -1,0 +1,4 @@
+vendor/
+test_generated/
+build/
+.DS_Store

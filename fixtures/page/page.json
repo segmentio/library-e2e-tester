@@ -1,0 +1,10 @@
+{
+  "type": "page",
+  "name": "Home",
+  "userId": "prateek",
+  "properties": {
+    "title": "Welcome | Initech",
+    "url": "http://www.initech.com",
+    "id": "{{id}}"
+  }
+}

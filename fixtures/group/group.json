@@ -1,0 +1,13 @@
+{
+  "type": "group",
+  "userId": "prateek",
+  "groupId": "segment",
+  "traits": {
+    "name": "Initech",
+    "industry": "Technology",
+    "employees": 329,
+    "plan": "enterprise",
+    "total billed": 830,
+    "id": "{{id}}"
+  }
+}

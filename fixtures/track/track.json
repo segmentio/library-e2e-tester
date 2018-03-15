@@ -1,0 +1,10 @@
+{
+  "type": "track",
+  "event": "Simple Track",
+  "userId": "prateek",
+  "properties": {
+    "id": "{{id}}",
+    "plan": "Pro Annual",
+    "accountType" : "Facebook"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "type": "identify",
+  "userId": "prateek",
+  "traits": {
+    "name": "Peter Gibbons",
+    "email": "peter@initech.com",
+    "plan": "premium",
+    "id": "{{id}}"
+  }
+}
