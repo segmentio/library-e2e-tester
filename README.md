@@ -31,4 +31,4 @@ The setup must be done manually:
 2. Create a Runscope bucket. Note the Runscope bucket ID and Runscope token.
 3. Add the Runscope bucket as a Segment webhook destination.
 
-![https://cldup.com/luiNQxqYu9.png](tester)
+![tester](https://cldup.com/luiNQxqYu9.png)
