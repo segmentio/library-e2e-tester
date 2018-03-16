@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/pkg/errors"
+	"github.com/segmentio/events"
 )
 
 // RunscopeMessagesResponse is the type for the runscope response for multiple messages.
@@ -32,7 +33,7 @@ func readJSONBody(r io.ReadCloser, v interface{}) error {
 		return errors.Wrap(err, "could not read body")
 	}
 	if err := json.Unmarshal(body, &v); err != nil {
-		return errors.Wrap(err, "could not parse json")
+		return errors.Wrapf(err, "could not parse json: %s", body)
 	}
 	return nil
 }
@@ -40,13 +41,13 @@ func readJSONBody(r io.ReadCloser, v interface{}) error {
 func runscopeMessages(bucket, token string) ([]map[string]interface{}, error) {
 	req, err := http.NewRequest("GET", "https://api.runscope.com/buckets/"+bucket+"/messages", nil)
 	if err != nil {
-		return nil, errors.Wrap(err, "could not create request")
+		return nil, errors.Wrap(err, "messages: could not create request")
 	}
 	req.Header.Add("Authorization", "Bearer "+token)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return nil, errors.Wrap(err, "could not fetch messages")
+		return nil, errors.Wrap(err, "messages: could not fetch")
 	}
 
 	var runscopeMessagesResponse RunscopeMessagesResponse
@@ -59,23 +60,27 @@ func runscopeMessages(bucket, token string) ([]map[string]interface{}, error) {
 	for _, data := range runscopeMessagesResponse.Data {
 		req, err := http.NewRequest("GET", "https://api.runscope.com/buckets/"+bucket+"/messages/"+data.UUID, nil)
 		if err != nil {
-			return nil, errors.Wrap(err, "could not create request")
+			events.Log("message %{message}v: could not create request %{err}v", data.UUID, err)
+			continue
 		}
 		req.Header.Add("Authorization", "Bearer "+token)
 
 		resp, err := http.DefaultClient.Do(req)
 		if err != nil {
-			return nil, errors.Wrap(err, "could not fetch message")
+			events.Log("message %{message}v: could not fetch %{err}v", data.UUID, err)
+			continue
 		}
 
 		var runscopeMessageResponse RunscopeMessageResponse
 		if err := readJSONBody(resp.Body, &runscopeMessageResponse); err != nil {
-			return nil, errors.Wrap(err, "message: could not read json")
+			events.Log("message %{message}v: could not read json %{err}v", data.UUID, err)
+			continue
 		}
 
 		var msg map[string]interface{}
 		if err := json.Unmarshal([]byte(runscopeMessageResponse.Data.Request.Body), &msg); err != nil {
-			return nil, errors.Wrap(err, "message data: could not parse json")
+			events.Log("message %{message}v: could not parse json %{err}v", data.UUID, err)
+			continue
 		}
 
 		msgs = append(msgs, msg)
