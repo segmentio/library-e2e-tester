@@ -11,15 +11,6 @@ import (
 	"github.com/segmentio/events"
 )
 
-// RunscopeMessagesResponse is the type for the runscope response for multiple messages.
-type RunscopeMessagesResponse struct {
-	Data []struct {
-		Request struct {
-			Body string
-		}
-	}
-}
-
 func readJSONBody(r io.ReadCloser, v interface{}) error {
 	defer r.Close()
 	body, err := ioutil.ReadAll(r)
@@ -33,7 +24,7 @@ func readJSONBody(r io.ReadCloser, v interface{}) error {
 }
 
 func runscopeMessages(bucket, username string) ([]map[string]interface{}, error) {
-	req, err := http.NewRequest("GET", "https://webhook-e2e.segment/buckets/"+bucket, nil)
+	req, err := http.NewRequest("GET", "https://webhook-e2e.segment.com/buckets/"+bucket+"?limit=10", nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "messages: could not create request")
 	}
@@ -46,16 +37,18 @@ func runscopeMessages(bucket, username string) ([]map[string]interface{}, error)
 		return nil, errors.Wrap(err, "messages: could not fetch")
 	}
 
-	var runscopeMessagesResponse RunscopeMessagesResponse
+	var runscopeMessagesResponse []interface{}
 	if err := readJSONBody(resp.Body, &runscopeMessagesResponse); err != nil {
 		return nil, errors.Wrap(err, "messages: could not read json")
 	}
 
 	msgs := make([]map[string]interface{}, 0)
 
-	for _, data := range runscopeMessagesResponse.Data {
+	for _, data := range runscopeMessagesResponse {
 		var msg map[string]interface{}
-		if err := json.Unmarshal([]byte(data.Request.Body), &msg); err != nil {
+
+		b := []byte(data.(string))
+		if err := json.Unmarshal(b, &msg); err != nil {
 			events.Log("message %{message}v: could not parse json %{err}v", data, err)
 			continue
 		}
