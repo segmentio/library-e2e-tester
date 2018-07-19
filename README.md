@@ -7,7 +7,7 @@ A CLI testing tool that sends events to Segment and verifies events are received
 The tester is used as follows:
 
 ```
-./tester -segment-write-key='...' -runscope-token='...' -runscope-bucket='...' -path='...''
+./tester -segment-write-key='...' -runscope-token='...' -webhook-bucket='...' -path='...''
 ```
 
 The tester will invoke the library CLI with some fixtures, and verify that events appeared in a Runscope connected webhook.
