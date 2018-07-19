@@ -14,7 +14,7 @@ func main() {
 	var config struct {
 		Path                string `conf:"path"                  help:"path to the library binary" validate:"nonzero"`
 		SegmentWriteKey     string `conf:"segment-write-key"     help:"writekey for the Segment project to send data to" validate:"nonzero"`
-		RunscopeBucket      string `conf:"runscope-bucket"       help:"runscope bucket the Segment project sends data to" validate:"nonzero"`
+		WebhookBucket       string `conf:"webhook-bucket"        help:"webhook bucket the Segment project sends data to" validate:"nonzero"`
 		WebhookAuthUsername string `conf:"webhook-auth-username" help:"authentication username for a webhook" validate:"nonzero"`
 		Debug               bool   `conf:"debug"                 help:"Enable Debugging"`
 	}
@@ -24,7 +24,7 @@ func main() {
 
 	t := &tester.T{
 		SegmentWriteKey:     config.SegmentWriteKey,
-		RunscopeBucket:      config.RunscopeBucket,
+		WebhookBucket:       config.WebhookBucket,
 		WebhookAuthUsername: config.WebhookAuthUsername,
 	}
 

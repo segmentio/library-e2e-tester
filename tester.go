@@ -23,7 +23,7 @@ var ErrNotMatchedInRunscope = errors.New("message found in runscope, but not mat
 // T runs our tests.
 type T struct {
 	SegmentWriteKey     string
-	RunscopeBucket      string
+	WebhookBucket       string
 	WebhookAuthUsername string
 }
 
@@ -165,7 +165,7 @@ func (t *T) testMessage(msg map[string]interface{}) error {
 }
 
 func (t *T) findMessageInRunscope(expectedID, key string) (map[string]interface{}, error) {
-	msgs, err := runscopeMessages(t.RunscopeBucket, t.WebhookAuthUsername)
+	msgs, err := runscopeMessages(t.WebhookBucket, t.WebhookAuthUsername)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not get runscope messages")
 	}
