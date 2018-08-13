@@ -1,0 +1,48 @@
+version: 2
+jobs:
+  build:
+    working_directory: /go/src/github.com/segmentio/library-e2e-tester
+    docker:
+      - image: circleci/golang
+    steps:
+      - checkout
+      - setup_remote_docker: { reusable: true, docker_layer_caching: true }
+      - run:
+          name: Dependencies
+          command: |
+            go get -u github.com/golang/dep/cmd/dep
+            make deps
+      - run: go get -v -t ./...
+      - run: go vet ./...
+      - run: go test -v -race ./...
+
+
+version: 2
+jobs:
+  build:
+    working_directory: /go/src/github.com/segmentio/library-e2e-tester
+
+    docker:
+      - image: circleci/golang
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          key: deps-{{ checksum "Gopkg.lock" }}
+
+      - run:
+          name: Dependencies
+          command: |
+            go get -u github.com/golang/dep/cmd/dep
+            make deps
+
+      - run:
+          name: Test
+          command: |
+            make test
+
+      - save_cache:
+          key: deps-{{ checksum "Gopkg.lock" }}
+          paths:
+            - vendor/

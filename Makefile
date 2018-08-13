@@ -4,4 +4,13 @@ fixtures:
 build:
 	gox -output="build/{{.Dir}}_{{.OS}}_{{.Arch}}" -parallel=4 ./...
 
-.PHONY: fixtures build
+deps:
+	$Qdep ensure
+
+vet:
+	$Qgo vet -composites=false ./...
+
+test: vet
+	$Qgo test -v -cover -race ./...
+
+.PHONY: fixtures build deps vet test
