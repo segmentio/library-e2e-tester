@@ -12,19 +12,20 @@ import (
 	"github.com/pkg/errors"
 	backo "github.com/segmentio/backo-go"
 	"github.com/segmentio/events"
+	"github.com/segmentio/library-e2e-tester/webhook"
 )
 
-// ErrMissingInRunscope is returned when the message could not be found in Runscope.
-var ErrMissingInRunscope = errors.New("message not found in runscope")
+// ErrMissingInWebhook is returned when the message could not be found in the webhook.
+var ErrMissingInWebhook = errors.New("message not found in webhook")
 
-// ErrNotMatchedInRunscope is returned when the message is found in runscope but the contents do not match.
-var ErrNotMatchedInRunscope = errors.New("message found in runscope, but not matched")
+// ErrNotMatchedInWebhook is returned when the message is found in the webhook but the contents do not match.
+var ErrNotMatchedInWebhook = errors.New("message found in webhook, but not matched")
 
 // T runs our tests.
 type T struct {
-	SegmentWriteKey string
-	RunscopeBucket  string
-	RunscopeToken   string
+	SegmentWriteKey     string
+	WebhookBucket       string
+	WebhookAuthUsername string
 }
 
 // Test invokes the test binaries.
@@ -144,30 +145,30 @@ func (t *T) testMessage(msg map[string]interface{}) error {
 		select {
 		case <-ticker.C:
 			events.Debug("searching for id %{id}v", expectedID)
-			runscopeMsg, err := t.findMessageInRunscope(expectedID, key)
+			webhookMsg, err := t.findMessageInWebhook(expectedID, key)
 			if err != nil {
 				continue
 			}
 
-			if SegmentEqual(runscopeMsg, msg) {
+			if SegmentEqual(webhookMsg, msg) {
 				events.Debug("matched: %{id}v", expectedID)
 				return nil
 			}
 
 			events.Log("found id %{id}v, but could not match content", expectedID)
-			pretty.Fdiff(os.Stdout, runscopeMsg, msg)
-			return ErrNotMatchedInRunscope
+			pretty.Fdiff(os.Stdout, webhookMsg, msg)
+			return ErrNotMatchedInWebhook
 		case <-timeout:
-			events.Log("didn't find message %{id}v in runsope after timeout", expectedID)
-			return ErrMissingInRunscope
+			events.Log("didn't find message %{id}v in webhook after timeout", expectedID)
+			return ErrMissingInWebhook
 		}
 	}
 }
 
-func (t *T) findMessageInRunscope(expectedID, key string) (map[string]interface{}, error) {
-	msgs, err := runscopeMessages(t.RunscopeBucket, t.RunscopeToken)
+func (t *T) findMessageInWebhook(expectedID, key string) (map[string]interface{}, error) {
+	msgs, err := webhook.GetWebhookMessages(t.WebhookBucket, t.WebhookAuthUsername)
 	if err != nil {
-		return nil, errors.Wrap(err, "could not get runscope messages")
+		return nil, errors.Wrap(err, "could not get webhook messages")
 	}
 
 	for _, msg := range msgs {
