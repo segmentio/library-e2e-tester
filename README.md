@@ -32,3 +32,5 @@ The setup must be done manually:
 3. Add the Webhook bucket as a Segment webhook destination.
 
 ![tester](https://cldup.com/luiNQxqYu9.png)
+
+The Webhook API is documented on [SwaggerHub](https://app.swaggerhub.com/apis/Segment.io/Webhook-E2E/1.0.1).
