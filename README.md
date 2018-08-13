@@ -7,10 +7,10 @@ A CLI testing tool that sends events to Segment and verifies events are received
 The tester is used as follows:
 
 ```
-./tester -segment-write-key='...' -runscope-token='...' -runscope-bucket='...' -path='...''
+./tester -segment-write-key='...' -webhook-auth-username='...' -webhook-bucket='...' -path='...'
 ```
 
-The tester will invoke the library CLI with some fixtures, and verify that events appeared in a Runscope connected webhook.
+The tester will invoke the library CLI with some fixtures, and verify that events appeared in a connected webhook.
 
 For a library to be tested by this tester, the library must provide a CLI interface that conforms to the contract enforced by the tester:
 
@@ -28,7 +28,7 @@ analytics --type=<type>
 The setup must be done manually:
 
 1. Create a Segment workspace and project. Note the writeKey of the project.
-2. Create a Runscope bucket. Note the Runscope bucket ID and Runscope token.
-3. Add the Runscope bucket as a Segment webhook destination.
+2. Create a Webhook bucket. Note the Webhook bucket ID and Webhook auth username.
+3. Add the Webhook bucket as a Segment webhook destination.
 
 ![tester](https://cldup.com/luiNQxqYu9.png)
