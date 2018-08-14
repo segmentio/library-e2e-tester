@@ -25,7 +25,7 @@ func readJSONBody(r io.ReadCloser, v interface{}) error {
 }
 
 func GetWebhookMessages(bucket, basicAuthUsername string) ([]map[string]interface{}, error) {
-	req, err := http.NewRequest("GET", "https://webhook-e2e.segment.com/buckets/"+bucket+"?limit=10", nil)
+	req, err := http.NewRequest("GET", "https://webhook-e2e.segment.com/buckets/"+bucket+"?limit=100", nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "webhook: could not create request")
 	}
