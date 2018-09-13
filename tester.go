@@ -140,7 +140,7 @@ func (t *T) testMessage(msg map[string]interface{}) error {
 
 	backo := backo.NewBacko(2*time.Second, 2, 1, 5*time.Second)
 	ticker := backo.NewTicker()
-	timeout := time.After(1 * time.Minute)
+	timeout := time.After(3 * time.Minute)
 	for {
 		select {
 		case <-ticker.C:
