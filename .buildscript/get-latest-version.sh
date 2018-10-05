@@ -9,6 +9,4 @@ if [[ -z ${executable} ]] ; then
     executable="tester_linux_amd64"
 fi
 
-latest=$(git tag | tail -1)
-
-wget https://github.com/segmentio/library-e2e-tester/releases/download/${latest}/${executable}
+wget $(curl -s https://api.github.com/repos/segmentio/library-e2e-tester/releases/latest | jq -r '.assets[].browser_download_url' | grep ${executable})
