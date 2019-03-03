@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"os"
 	"time"
 
@@ -72,6 +73,19 @@ func (t *T) Test(invoker Invoker) error {
 				"--type=" + msgType,
 				"--userId=" + msg["userId"].(string),
 			}
+			anonId, ok := msg["anonymousId"]
+			if ok {
+				args = append(args, "--anonymousId="+anonId.(string))
+			}
+			for _, key := range []string{"context", "integrations"} {
+				val, ok := msg[key]
+				if ok {
+					jsonStr, err := json.Marshal(val)
+					if err == nil {
+						args = append(args, "--"+key+"="+url.PathEscape(string(jsonStr)))
+					}
+				}
+			}
 
 			switch msgType {
 			case "track":
@@ -80,6 +94,8 @@ func (t *T) Test(invoker Invoker) error {
 					return errors.Wrap(err, "could not marshal properties")
 				}
 				args = append(args, "--event="+msg["event"].(string), "--properties="+string(properties))
+			case "screen":
+				fallthrough
 			case "page":
 				properties, err := json.Marshal(msg["properties"])
 				if err != nil {
@@ -98,6 +114,8 @@ func (t *T) Test(invoker Invoker) error {
 					return errors.Wrap(err, "could not marshal traits")
 				}
 				args = append(args, "--traits="+string(traits), "--groupId="+msg["groupId"].(string))
+			case "alias":
+				args = append(args, "--previousId="+msg["previousId"].(string))
 			default:
 				panic("unsupported type: " + msgType)
 			}
@@ -128,10 +146,14 @@ func (t *T) testMessage(msg map[string]interface{}) error {
 		key = "properties"
 	case "page":
 		key = "properties"
+	case "screen":
+		key = "properties"
 	case "identify":
 		key = "traits"
 	case "group":
 		key = "traits"
+	case "alias":
+		key = "context"
 	default:
 		panic("unsupported type: " + msgType)
 	}
