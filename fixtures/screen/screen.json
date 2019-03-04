@@ -1,0 +1,10 @@
+{
+  "type": "screen",
+  "name": "Home",
+  "userId": "nhi",
+  "properties": {
+    "title": "Welcome | Initech",
+    "url": "http://www.initech.com",
+    "id": "{{id}}"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "anonymousId": "anon100",
+  "context": {
+    "primary_business_unit": "news",
+    "secondary_business_unit": "news",
+    "trackingData": {
+      "context": {
+        "ip": "192.168.0.1, 192.168.0.44",
+        "location": {
+          "dma": "803"
+        },
+        "timeZone": "America/Los_Angeles"
+      },
+      "properties": {
+        "CDN": "EDGECAST",
+        "isLive": false
+      },
+      "userId": "user123"
+    },
+    "traits": {
+      "entitlements": "abcd"
+    }
+  },
+  "event": "Content Started",
+  "type": "track",
+  "userId": "nhi",
+  "integrations": {
+    "integration1": {
+      "name1": "value1"
+    },
+    "integration2": {
+      "map1": {},
+      "map2": {
+        "name2": "value2"
+      }
+    }
+  },
+  "properties": {
+    "id": "{{id}}",
+    "Referrer Name": "None",
+    "Restarted Playback": "No",
+    "Resumed Playback": "No",
+    "Video Ad Length": 0,
+    "Video Ad Model": "",
+    "Video Ad Supported": true
+  }
+}
