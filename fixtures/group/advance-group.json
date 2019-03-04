@@ -1,0 +1,26 @@
+{
+  "type": "group",
+  "userId": "nhi",
+  "groupId": "libraries",
+  "traits": {
+    "name": "Initech",
+    "industry": "Technology",
+    "employees": 329,
+    "plan": "enterprise",
+    "total billed": 830,
+    "id": "{{id}}"
+  },
+  "context": {
+    "app": {
+      "build": "440",
+      "name": "Segment Sample",
+      "namespace": "com.segment.analytics.sample",
+      "version": "4.4.0-SNAPSHOT"
+    }
+  },
+  "integrations": {
+    "integration1": {
+      "name": "value"
+    }
+  }
+}

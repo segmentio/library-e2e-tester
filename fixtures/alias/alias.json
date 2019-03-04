@@ -1,0 +1,8 @@
+{
+  "type": "alias",
+  "userId": "currentUser",
+  "previousId": "prevUser",
+  "context": {
+    "id": "{{id}}"
+  }
+}

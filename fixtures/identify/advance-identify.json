@@ -1,0 +1,23 @@
+{
+  "type": "identify",
+  "userId": "NTI3ODQ3ZmUtODgxNC00MjhiLTk0YjctM2JlNGQ5OGFlNGE3",
+  "traits": {
+    "name": "Peter Gibbons",
+    "email": "peter@initech.com",
+    "plan": "premium",
+    "id": "{{id}}"
+  },
+  "integrations": {
+    "Facebook": {},
+    "Google": {
+      "name1": "value1"
+    }
+  },
+  "anonymousId": "903875325897329587",
+  "context": {
+    "name": "value",
+    "map": {
+      "key1": "val1"
+    }
+  }
+}

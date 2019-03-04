@@ -1,0 +1,69 @@
+{
+  "anonymousId": "anon100",
+  "context": {
+    "app": "Awesome Video App",
+    "app_name": "ava",
+    "app_platform": "roku",
+    "app_version": "3.13.0",
+    "device": {
+      "advertisingid": "aaa00000-abbb-5333-8000-e5bcdb9c0bbb",
+      "id": "1ar01111-cccc-5555-9999-6b1488cccccc",
+      "manufacturer": "Roku",
+      "model": "4620X",
+      "type": "roku",
+      "version": "299.00E04142A"
+    },
+    "ip": "192.160.0.226",
+    "library": {
+      "name": "analytics-roku",
+      "version": "1.0.0"
+    },
+    "locale": "en-US",
+    "os": {
+      "name": "Roku",
+      "version": "9.0 build 4142"
+    },
+    "primary_business_unit": "news",
+    "secondary_business_unit": "news",
+    "trackingData": {
+      "context": {
+        "ip": "192.168.0.1, 192.168.0.44",
+        "location": {
+          "dma": "803"
+        },
+        "timeZone": "America/Los_Angeles"
+      },
+      "properties": {
+        "CDN": "EDGECAST",
+        "isLive": false
+      },
+      "userId": "user123"
+    },
+    "traits": {
+      "entitlements": "abcd"
+    }
+  },
+  "event": "Content Started",
+  "type": "track",
+  "userId": "nhi",
+  "integrations": {
+    "integration1": {
+      "name1": "value1"
+    },
+    "integration2": {
+      "map1": {},
+      "map2": {
+        "name2": "value2"
+      }
+    }
+  },
+  "properties": {
+    "id": "{{id}}",
+    "Referrer Name": "None",
+    "Restarted Playback": "No",
+    "Resumed Playback": "No",
+    "Video Ad Length": 0,
+    "Video Ad Model": "",
+    "Video Ad Supported": true
+  }
+}

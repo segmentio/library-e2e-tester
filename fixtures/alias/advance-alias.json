@@ -1,0 +1,16 @@
+{
+  "type": "alias",
+  "userId": "currentUser",
+  "previousId": "prevUser",
+  "anonymousId": "anon29",
+  "integrations": {
+    "Google Analytics": {}
+  },
+  "context": {
+    "id": "{{id}}",
+    "company": {
+      "name": "BigCo",
+      "industry": "High Tech"
+    }
+  }
+}

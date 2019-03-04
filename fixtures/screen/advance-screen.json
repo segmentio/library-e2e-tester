@@ -1,0 +1,50 @@
+{
+  "type": "screen",
+  "name": "Detail Menu Page Item",
+  "userId": "nhi",
+  "properties": {
+    "id": "{{id}}",
+    "campaign_additional": "no additional",
+    "campaign_agency": "no agency",
+    "campaign_marketing_channel": "no marketing channel",
+    "campaign_name": "no name",
+    "campaign_organization": "no organization",
+    "campaign_source": "no source",
+    "campaign_tracking_code": "no tracking code"
+  },
+  "anonymousId": "anon=ABCD",
+  "context": {
+    "app": "Netflix Nation",
+    "app_name": "netflix",
+    "app_platform": "roku",
+    "app_version": "4.2.1",
+    "device": {
+      "advertisingid": "12345-4567-9886-8188-264044442222",
+      "id": "94d11111-3333-5555-aaaa-eeeee3c00000",
+      "manufacturer": "Roku",
+      "model": "3710X",
+      "type": "roku",
+      "version": "289.00E04084A"
+    },
+    "ip": "192.168.199.101",
+    "locale": "en-US",
+    "os": {
+      "name": "Roku",
+      "version": "9.0 build 4084"
+    },
+    "traits": {
+      "associatedId": "no id"
+    }
+  },
+  "integrations": {
+    "integration1": {
+      "name1": "value1"
+    },
+    "integration2": {
+      "map1": {},
+      "map2": {
+        "name2": "value2"
+      }
+    }
+  }
+}
