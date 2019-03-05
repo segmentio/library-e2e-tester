@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"os"
+	"time"
 
 	"github.com/segmentio/conf"
 	"github.com/segmentio/events"
@@ -22,6 +24,12 @@ func main() {
 	}
 	conf.Load(&config)
 
+	// if TestResultFile is not specified, default to
+	// test-results-YYYY-MM-DDTHH:MM:SS.txt (with current time value)
+	if config.TestResultFile == "" {
+		config.TestResultFile = fmt.Sprintf("test-results-%v.txt", time.Now().Format("2006-01-02T15:04:05"))
+	}
+
 	invoker := tester.NewCLIInvoker(config.Path)
 
 	t := &tester.T{
@@ -41,6 +49,7 @@ func main() {
 	}
 
 	err := t.Test(invoker)
+	events.Log("Test result file: %v", config.TestResultFile)
 	if err != nil {
 		events.Log("test error: %{error}v", err)
 		os.Exit(1)
