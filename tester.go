@@ -5,6 +5,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"net/url"
 	"os"
 	"time"
@@ -27,11 +29,23 @@ type T struct {
 	SegmentWriteKey     string
 	WebhookBucket       string
 	WebhookAuthUsername string
+	ReportFileName      string
+	TestAllFixtures     bool // if true, test all fixtures regardless of individual results
 }
 
 // Test invokes the test binaries.
 func (t *T) Test(invoker Invoker) error {
+	var res error
 	ctx := context.Background()
+
+	var reportWriter io.Writer
+	if t.ReportFileName != "" {
+		if reportWriter, res = os.Create(t.ReportFileName); res != nil {
+			return res
+		}
+	} else {
+		reportWriter = ioutil.Discard
+	}
 
 	fixturesDirectory, err := AssetDir("fixtures")
 	if err != nil {
@@ -51,19 +65,34 @@ func (t *T) Test(invoker Invoker) error {
 		for _, fixture := range fixtures {
 			events.Debug("running %{fixture}v", fixture)
 
+			var testrun TestRun
+			testrun.Start(fixture)
+
 			f, err := Asset("fixtures/" + dir + "/" + fixture)
 			if err != nil {
-				return errors.Wrap(err, "could not read fixture")
+				testrun.Error("could not read fixture " + fixture)
+				if !t.TestAllFixtures {
+					return errors.Wrap(err, "could not read fixture "+fixture)
+				}
+				res = err
 			}
 
 			var buf bytes.Buffer
 			if err := producer.Produce(ctx, bytes.NewReader(f), &buf); err != nil {
-				return errors.Wrap(err, "could not produce messages")
+				testrun.Error(fixture + ": could not produce messages")
+				if !t.TestAllFixtures {
+					return errors.Wrap(err, fixture+": could not produce messages")
+				}
+				res = err
 			}
 
 			var msg map[string]interface{}
 			if err := json.Unmarshal(buf.Bytes(), &msg); err != nil {
-				return errors.Wrap(err, "could not parse json")
+				testrun.Error(fixture + ": could not parse json")
+				if !t.TestAllFixtures {
+					return errors.Wrap(err, fixture+": could not parse json")
+				}
+				res = err
 			}
 
 			msgType := msg["type"].(string)
@@ -91,7 +120,11 @@ func (t *T) Test(invoker Invoker) error {
 			case "track":
 				properties, err := json.Marshal(msg["properties"])
 				if err != nil {
-					return errors.Wrap(err, "could not marshal properties")
+					testrun.Error("could not marshal properties")
+					if !t.TestAllFixtures {
+						return errors.Wrap(err, "could not marshal properties")
+					}
+					res = err
 				}
 				args = append(args, "--event="+msg["event"].(string), "--properties="+string(properties))
 			case "screen":
@@ -99,19 +132,31 @@ func (t *T) Test(invoker Invoker) error {
 			case "page":
 				properties, err := json.Marshal(msg["properties"])
 				if err != nil {
-					return errors.Wrap(err, "could not marshal properties")
+					testrun.Error("could not marshal properties")
+					if !t.TestAllFixtures {
+						return errors.Wrap(err, "could not marshal properties")
+					}
+					res = err
 				}
 				args = append(args, "--name="+msg["name"].(string), "--properties="+string(properties))
 			case "identify":
 				traits, err := json.Marshal(msg["traits"])
 				if err != nil {
-					return errors.Wrap(err, "could not marshal traits")
+					testrun.Error("could not marshal traits")
+					if !t.TestAllFixtures {
+						return errors.Wrap(err, "could not marshal traits")
+					}
+					res = err
 				}
 				args = append(args, "--traits="+string(traits))
 			case "group":
 				traits, err := json.Marshal(msg["traits"])
 				if err != nil {
-					return errors.Wrap(err, "could not marshal traits")
+					testrun.Error("could not marshal traits")
+					if !t.TestAllFixtures {
+						return errors.Wrap(err, "could not marshal traits")
+					}
+					res = err
 				}
 				args = append(args, "--traits="+string(traits), "--groupId="+msg["groupId"].(string))
 			case "alias":
@@ -123,18 +168,31 @@ func (t *T) Test(invoker Invoker) error {
 			events.Debug("invoking library for fixture %{fixture}v with %{args}v", fixture, args)
 
 			if err := invoker(ctx, args...); err != nil {
-				return errors.Wrap(err, "could not invoke command")
+				testrun.Error("could not invoke command")
+				if !t.TestAllFixtures {
+					return errors.Wrap(err, "could not invoke command")
+				}
+				res = err
 			}
 
 			events.Log("sent mesage for fixture %{fixture}v", fixture)
 
 			if err := t.testMessage(msg); err != nil {
-				return err
+				testrun.Fail(err.Error())
+				testrun.AddDetails(string(buf.Bytes()))
+				if !t.TestAllFixtures {
+					return err
+				}
+				res = err
+			} else {
+				testrun.End("PASS")
 			}
+
+			testrun.Print(reportWriter)
 		}
 	}
 
-	return nil
+	return res
 }
 
 func (t *T) testMessage(msg map[string]interface{}) error {
