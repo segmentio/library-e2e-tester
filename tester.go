@@ -30,7 +30,7 @@ type T struct {
 	WebhookBucket       string
 	WebhookAuthUsername string
 	ReportFileName      string
-	TestAllFixtures     bool // if true, test all fixtures regardless of individual results
+	FailFast            bool // disable running additional tests after any test fails
 }
 
 // Test invokes the test binaries.
@@ -71,7 +71,7 @@ func (t *T) Test(invoker Invoker) error {
 			f, err := Asset("fixtures/" + dir + "/" + fixture)
 			if err != nil {
 				testrun.Error("could not read fixture " + fixture)
-				if !t.TestAllFixtures {
+				if t.FailFast {
 					return errors.Wrap(err, "could not read fixture "+fixture)
 				}
 				res = err
@@ -80,7 +80,7 @@ func (t *T) Test(invoker Invoker) error {
 			var buf bytes.Buffer
 			if err := producer.Produce(ctx, bytes.NewReader(f), &buf); err != nil {
 				testrun.Error(fixture + ": could not produce messages")
-				if !t.TestAllFixtures {
+				if t.FailFast {
 					return errors.Wrap(err, fixture+": could not produce messages")
 				}
 				res = err
@@ -89,7 +89,7 @@ func (t *T) Test(invoker Invoker) error {
 			var msg map[string]interface{}
 			if err := json.Unmarshal(buf.Bytes(), &msg); err != nil {
 				testrun.Error(fixture + ": could not parse json")
-				if !t.TestAllFixtures {
+				if t.FailFast {
 					return errors.Wrap(err, fixture+": could not parse json")
 				}
 				res = err
@@ -121,7 +121,7 @@ func (t *T) Test(invoker Invoker) error {
 				properties, err := json.Marshal(msg["properties"])
 				if err != nil {
 					testrun.Error("could not marshal properties")
-					if !t.TestAllFixtures {
+					if t.FailFast {
 						return errors.Wrap(err, "could not marshal properties")
 					}
 					res = err
@@ -133,7 +133,7 @@ func (t *T) Test(invoker Invoker) error {
 				properties, err := json.Marshal(msg["properties"])
 				if err != nil {
 					testrun.Error("could not marshal properties")
-					if !t.TestAllFixtures {
+					if t.FailFast {
 						return errors.Wrap(err, "could not marshal properties")
 					}
 					res = err
@@ -143,7 +143,7 @@ func (t *T) Test(invoker Invoker) error {
 				traits, err := json.Marshal(msg["traits"])
 				if err != nil {
 					testrun.Error("could not marshal traits")
-					if !t.TestAllFixtures {
+					if t.FailFast {
 						return errors.Wrap(err, "could not marshal traits")
 					}
 					res = err
@@ -153,7 +153,7 @@ func (t *T) Test(invoker Invoker) error {
 				traits, err := json.Marshal(msg["traits"])
 				if err != nil {
 					testrun.Error("could not marshal traits")
-					if !t.TestAllFixtures {
+					if t.FailFast {
 						return errors.Wrap(err, "could not marshal traits")
 					}
 					res = err
@@ -169,7 +169,7 @@ func (t *T) Test(invoker Invoker) error {
 
 			if err := invoker(ctx, args...); err != nil {
 				testrun.Error("could not invoke command")
-				if !t.TestAllFixtures {
+				if t.FailFast {
 					return errors.Wrap(err, "could not invoke command")
 				}
 				res = err
@@ -180,7 +180,7 @@ func (t *T) Test(invoker Invoker) error {
 			if err := t.testMessage(msg); err != nil {
 				testrun.Fail(err.Error())
 				testrun.AddDetails(string(buf.Bytes()))
-				if !t.TestAllFixtures {
+				if t.FailFast {
 					return err
 				}
 				res = err
