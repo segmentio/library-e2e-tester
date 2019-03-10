@@ -18,7 +18,7 @@ func main() {
 		SegmentWriteKey     string `conf:"segment-write-key"        help:"writekey for the Segment project to send data to" validate:"nonzero"`
 		WebhookBucket       string `conf:"webhook-bucket"           help:"webhook bucket the Segment project sends data to" validate:"nonzero"`
 		WebhookAuthUsername string `conf:"webhook-auth-username"    help:"basic auth username for the webhook bucket the Segment project sends data to" validate:"nonzero"`
-		TestAllFixtures     bool   `conf:"test-all-fixtures"        help:"test all fixtures, regardless of individual failures"`
+		FailFast            bool   `conf:"failfast"                 help:"disable running additional tests after any test fails"`
 		TestResultFile      string `conf:"test-result-file"         help:"File name to write test results"`
 		Debug               bool   `conf:"debug"                    help:"Enable Debugging"`
 	}
@@ -37,7 +37,7 @@ func main() {
 		WebhookBucket:       config.WebhookBucket,
 		WebhookAuthUsername: config.WebhookAuthUsername,
 		ReportFileName:      config.TestResultFile,
-		TestAllFixtures:     config.TestAllFixtures,
+		FailFast:            config.FailFast,
 	}
 
 	if config.Debug {
