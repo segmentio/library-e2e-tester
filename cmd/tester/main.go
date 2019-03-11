@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"time"
 
@@ -11,6 +12,16 @@ import (
 
 	_ "github.com/segmentio/events/text"
 )
+
+/* print content of test result file on stdout */
+func printTestResults(resultFile string) {
+	fmt.Println("Test result file: ", resultFile)
+	testResults, err := ioutil.ReadFile(resultFile) // just pass the file name
+	if err != nil {
+		events.Log("error print results: %{error}v", err)
+	}
+	fmt.Println(string(testResults))
+}
 
 func main() {
 	var config struct {
@@ -49,7 +60,7 @@ func main() {
 	}
 
 	err := t.Test(invoker)
-	events.Log("Test result file: %v", config.TestResultFile)
+	printTestResults(config.TestResultFile)
 	if err != nil {
 		events.Log("test error: %{error}v", err)
 		os.Exit(1)
