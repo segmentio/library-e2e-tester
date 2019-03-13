@@ -88,6 +88,18 @@ func TestSegmentEqual(t *testing.T) {
 			},
 			Equal: false,
 		},
+		{
+			Name: "empty values are equivalent to non-existent",
+			A: map[string]interface{}{
+				"type":         "track",
+				"integrations": map[string]interface{}{},
+				"context":      map[string]interface{}{},
+			},
+			B: map[string]interface{}{
+				"type": "track",
+			},
+			Equal: true,
+		},
 	}
 
 	for _, tc := range testCases {
