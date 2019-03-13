@@ -18,11 +18,7 @@ func cleanMsg(m map[string]interface{}) map[string]interface{} {
 	}
 	// delete empty fields
 	for k, v := range m {
-		if reflect.TypeOf(v).String() == "string" {
-			if len(v.(string)) == 0 {
-				m = delete(m, k)
-			}
-		} else {
+		if reflect.TypeOf(v).String() != "string" {
 			// not string, check if empty interface
 			empty := true
 			for _ = range v.(map[string]interface{}) {
