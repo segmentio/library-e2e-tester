@@ -11,7 +11,7 @@
     "id": "{{id}}"
   },
   "context": {
-    "app": {
+    "appcontext": {
       "build": "440",
       "name": "Segment Sample",
       "namespace": "com.segment.analytics.sample",

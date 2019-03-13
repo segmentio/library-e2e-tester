@@ -14,23 +14,13 @@
   },
   "anonymousId": "anon=ABCD",
   "context": {
-    "app": "Netflix Nation",
-    "app_name": "netflix",
-    "app_platform": "roku",
-    "app_version": "4.2.1",
-    "device": {
+    "custom": {
       "advertisingid": "12345-4567-9886-8188-264044442222",
       "id": "94d11111-3333-5555-aaaa-eeeee3c00000",
       "manufacturer": "Roku",
       "model": "3710X",
       "type": "roku",
       "version": "289.00E04084A"
-    },
-    "ip": "192.168.199.101",
-    "locale": "en-US",
-    "os": {
-      "name": "Roku",
-      "version": "9.0 build 4084"
     },
     "traits": {
       "associatedId": "no id"
