@@ -2,7 +2,6 @@ package tester
 
 import (
 	"github.com/go-test/deep"
-	"reflect"
 )
 
 // SegmentEqual returns true if the two Segment messages can be considered the same.
@@ -18,10 +17,10 @@ func cleanMsg(m map[string]interface{}) map[string]interface{} {
 	}
 	// delete empty fields
 	for k, v := range m {
-		if reflect.TypeOf(v).String() != "string" {
-			// not string, check if empty interface
+		field, ok := v.(map[string]interface{})
+		if ok {
 			empty := true
-			for _ = range v.(map[string]interface{}) {
+			for _ = range field {
 				empty = false
 			}
 			if empty {
