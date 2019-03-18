@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/segmentio/conf"
@@ -30,7 +31,8 @@ func main() {
 		WebhookBucket       string `conf:"webhook-bucket"           help:"webhook bucket the Segment project sends data to" validate:"nonzero"`
 		WebhookAuthUsername string `conf:"webhook-auth-username"    help:"basic auth username for the webhook bucket the Segment project sends data to" validate:"nonzero"`
 		FailFast            bool   `conf:"failfast"                 help:"disable running additional tests after any test fails"`
-		TestResultFile      string `conf:"test-result-file"         help:"File name to write test results"`
+		TestResultFile      string `conf:"test-result-file"         help:"file name to write test results"`
+		SkipMessages        string `conf:"skip-messages"            help:"comma-separated list of message types to skip"`
 		Debug               bool   `conf:"debug"                    help:"Enable Debugging"`
 	}
 	conf.Load(&config)
@@ -49,6 +51,7 @@ func main() {
 		WebhookAuthUsername: config.WebhookAuthUsername,
 		ReportFileName:      config.TestResultFile,
 		FailFast:            config.FailFast,
+		SkipMessages:        strings.Split(config.SkipMessages, ","),
 	}
 
 	if config.Debug {
