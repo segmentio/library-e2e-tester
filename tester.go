@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"net/url"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/kr/pretty"
@@ -31,6 +32,18 @@ type T struct {
 	WebhookAuthUsername string
 	ReportFileName      string
 	FailFast            bool // disable running additional tests after any test fails
+	SkipMessages        []string
+}
+
+// Check whether the tester should skip messages of the given message type
+func (t *T) SkipMessageType(msgType string) bool {
+	for _, skipType := range t.SkipMessages {
+		// mesasge type comparison should be case-insensitive
+		if strings.EqualFold(skipType, msgType) {
+			return true
+		}
+	}
+	return false
 }
 
 // Test invokes the test binaries.
@@ -96,6 +109,13 @@ func (t *T) Test(invoker Invoker) error {
 			}
 
 			msgType := msg["type"].(string)
+
+			if t.SkipMessageType(msgType) {
+				events.Log("Skip message for fixture %{fixture}v", fixture)
+				testrun.Skip()
+				testrun.Print(reportWriter)
+				continue
+			}
 
 			args := []string{
 				"--writeKey=" + t.SegmentWriteKey,
@@ -175,7 +195,7 @@ func (t *T) Test(invoker Invoker) error {
 				res = err
 			}
 
-			events.Log("sent mesage for fixture %{fixture}v", fixture)
+			events.Log("sent message for fixture %{fixture}v", fixture)
 
 			if err := t.testMessage(msg); err != nil {
 				testrun.Fail(err.Error())
@@ -185,7 +205,7 @@ func (t *T) Test(invoker Invoker) error {
 				}
 				res = err
 			} else {
-				testrun.End("PASS")
+				testrun.End(TEST_PASS)
 			}
 
 			testrun.Print(reportWriter)
