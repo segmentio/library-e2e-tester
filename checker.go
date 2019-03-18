@@ -15,6 +15,19 @@ func cleanMsg(m map[string]interface{}) map[string]interface{} {
 	if _, ok := m["context"].(map[string]interface{}); ok {
 		m["context"] = delete(m["context"].(map[string]interface{}), "library")
 	}
+	// delete empty fields
+	for k, v := range m {
+		field, ok := v.(map[string]interface{})
+		if ok {
+			empty := true
+			for _ = range field {
+				empty = false
+			}
+			if empty {
+				m = delete(m, k)
+			}
+		}
+	}
 	return m
 }
 
