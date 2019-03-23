@@ -4,6 +4,7 @@ import (
 	"io"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/segmentio/conf"
 	"github.com/segmentio/events"
@@ -14,18 +15,21 @@ import (
 
 // Config represents the options that can be supplied to the harness.
 type Config struct {
-	Path                string `conf:"path"                     help:"path to the library binary" validate:"nonzero"`
-	SegmentWriteKey     string `conf:"segment-write-key"        help:"writekey for the Segment project to send data to" validate:"nonzero"`
-	WebhookBucket       string `conf:"webhook-bucket"           help:"webhook bucket the Segment project sends data to" validate:"nonzero"`
-	WebhookAuthUsername string `conf:"webhook-auth-username"    help:"basic auth username for the webhook bucket the Segment project sends data to" validate:"nonzero"`
-	FailFast            bool   `conf:"failfast"                 help:"disable running additional tests after any test fails"`
-	TestResultFile      string `conf:"test-result-file"         help:"file name to write test results"`
-	SkipFixtures        string `conf:"skip-fixtures"            help:"comma-separated list of fixtures to skip"`
-	Debug               bool   `conf:"debug"                    help:"Enable Debugging"`
+	Path                string        `conf:"path"                     help:"path to the library binary" validate:"nonzero"`
+	SegmentWriteKey     string        `conf:"segment-write-key"        help:"writekey for the Segment project to send data to" validate:"nonzero"`
+	WebhookBucket       string        `conf:"webhook-bucket"           help:"webhook bucket the Segment project sends data to" validate:"nonzero"`
+	WebhookAuthUsername string        `conf:"webhook-auth-username"    help:"basic auth username for the webhook bucket the Segment project sends data to" validate:"nonzero"`
+	FailFast            bool          `conf:"failfast"                 help:"disable running additional tests after any test fails"`
+	TestResultFile      string        `conf:"test-result-file"         help:"file name to write test results"`
+	SkipFixtures        string        `conf:"skip-fixtures"            help:"comma-separated list of fixtures to skip"`
+	Timeout             time.Duration `conf:"timeout"                    help:"Timeout before giving up checking on a message"`
+	Debug               bool          `conf:"debug"                    help:"Enable Debugging"`
 }
 
 func main() {
-	var config Config
+	config := Config{
+		Timeout: 1 * time.Minute,
+	}
 	conf.Load(&config)
 
 	if config.Debug {
@@ -45,6 +49,7 @@ func main() {
 		Output:              makeOutputWriter(config.TestResultFile),
 		FailFast:            config.FailFast,
 		SkipFixtures:        strings.Split(config.SkipFixtures, ","),
+		Timeout:             config.Timeout,
 	}
 
 	err := t.Test(invoker)
