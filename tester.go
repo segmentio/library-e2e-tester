@@ -187,14 +187,13 @@ func (t *T) Test(invoker Invoker) error {
 			events.Log("sent message for fixture %{fixture}v", fixture)
 
 			if err := t.testMessage(msg); err != nil {
-				testrun.Fail(err.Error())
-				testrun.AddDetails(string(buf.Bytes()))
+				testrun.Fail(err.Error(), string(buf.Bytes()))
 				if t.FailFast {
 					return err
 				}
 				res = err
 			} else {
-				testrun.End(TEST_PASS)
+				testrun.Pass()
 			}
 
 			testrun.Print(t.Output)
