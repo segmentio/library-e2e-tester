@@ -6,8 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
-	"net/url"
 	"os"
 	"strings"
 	"time"
@@ -30,12 +28,12 @@ type T struct {
 	SegmentWriteKey     string
 	WebhookBucket       string
 	WebhookAuthUsername string
-	ReportFileName      string
+	Output              io.Writer
 	FailFast            bool // disable running additional tests after any test fails
 	SkipMessages        []string
 }
 
-// Check whether the tester should skip messages of the given message type
+// SkipMessageType check whether the tester should skip messages of the given message type.
 func (t *T) SkipMessageType(msgType string) bool {
 	for _, skipType := range t.SkipMessages {
 		// mesasge type comparison should be case-insensitive
@@ -50,15 +48,6 @@ func (t *T) SkipMessageType(msgType string) bool {
 func (t *T) Test(invoker Invoker) error {
 	var res error
 	ctx := context.Background()
-
-	var reportWriter io.Writer
-	if t.ReportFileName != "" {
-		if reportWriter, res = os.Create(t.ReportFileName); res != nil {
-			return res
-		}
-	} else {
-		reportWriter = ioutil.Discard
-	}
 
 	fixturesDirectory, err := AssetDir("fixtures")
 	if err != nil {
@@ -113,7 +102,7 @@ func (t *T) Test(invoker Invoker) error {
 			if t.SkipMessageType(msgType) {
 				events.Log("Skip message for fixture %{fixture}v", fixture)
 				testrun.Skip()
-				testrun.Print(reportWriter)
+				testrun.Print(t.Output)
 				continue
 			}
 
@@ -131,7 +120,7 @@ func (t *T) Test(invoker Invoker) error {
 				if ok {
 					jsonStr, err := json.Marshal(val)
 					if err == nil {
-						args = append(args, "--"+key+"="+url.PathEscape(string(jsonStr)))
+						args = append(args, "--"+key+"="+string(jsonStr))
 					}
 				}
 			}
@@ -208,7 +197,7 @@ func (t *T) Test(invoker Invoker) error {
 				testrun.End(TEST_PASS)
 			}
 
-			testrun.Print(reportWriter)
+			testrun.Print(t.Output)
 		}
 	}
 
