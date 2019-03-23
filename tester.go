@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strings"
+	"regexp"
 	"time"
 
 	"github.com/kr/pretty"
@@ -30,14 +30,18 @@ type T struct {
 	WebhookAuthUsername string
 	Output              io.Writer
 	FailFast            bool // disable running additional tests after any test fails
-	SkipMessages        []string
+	SkipFixtures        []string
 }
 
-// SkipMessageType check whether the tester should skip messages of the given message type.
-func (t *T) SkipMessageType(msgType string) bool {
-	for _, skipType := range t.SkipMessages {
-		// mesasge type comparison should be case-insensitive
-		if strings.EqualFold(skipType, msgType) {
+// shouldSkipFixture returns true if the tester should skip the given fixture.
+func (t *T) shouldSkipFixture(fixture string) bool {
+	for _, regex := range t.SkipFixtures {
+		matched, err := regexp.MatchString(regex, fixture)
+		if err != nil {
+			events.Debug("error matching %{fixture}s to %{regex}s", fixture, regex)
+			continue
+		}
+		if matched {
 			return true
 		}
 	}
@@ -99,8 +103,8 @@ func (t *T) Test(invoker Invoker) error {
 
 			msgType := msg["type"].(string)
 
-			if t.SkipMessageType(msgType) {
-				events.Log("Skip message for fixture %{fixture}v", fixture)
+			if t.shouldSkipFixture(fixture) {
+				events.Log("skip fixture %{fixture}v", fixture)
 				testrun.Skip()
 				testrun.Print(t.Output)
 				continue

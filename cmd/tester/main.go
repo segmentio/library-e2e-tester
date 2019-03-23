@@ -20,7 +20,7 @@ type Config struct {
 	WebhookAuthUsername string `conf:"webhook-auth-username"    help:"basic auth username for the webhook bucket the Segment project sends data to" validate:"nonzero"`
 	FailFast            bool   `conf:"failfast"                 help:"disable running additional tests after any test fails"`
 	TestResultFile      string `conf:"test-result-file"         help:"file name to write test results"`
-	SkipMessages        string `conf:"skip-messages"            help:"comma-separated list of message types to skip"`
+	SkipFixtures        string `conf:"skip-fixtures"            help:"comma-separated list of fixtures to skip"`
 	Debug               bool   `conf:"debug"                    help:"Enable Debugging"`
 }
 
@@ -44,7 +44,7 @@ func main() {
 		WebhookAuthUsername: config.WebhookAuthUsername,
 		Output:              makeOutputWriter(config.TestResultFile),
 		FailFast:            config.FailFast,
-		SkipMessages:        strings.Split(config.SkipMessages, ","),
+		SkipFixtures:        strings.Split(config.SkipFixtures, ","),
 	}
 
 	err := t.Test(invoker)
