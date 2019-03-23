@@ -6,11 +6,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"os"
 	"regexp"
+	"strings"
 	"time"
 
-	"github.com/kr/pretty"
 	"github.com/pkg/errors"
 	backo "github.com/segmentio/backo-go"
 	"github.com/segmentio/events"
@@ -241,14 +240,14 @@ func (t *T) testMessage(msg map[string]interface{}) error {
 				continue
 			}
 
-			if SegmentEqual(webhookMsg, msg) {
+			equal, diff := SegmentEqual(webhookMsg, msg)
+			if equal {
 				events.Debug("matched: %{id}v", expectedID)
 				return nil
 			}
 
 			events.Log("found id %{id}v, but could not match content", expectedID)
-			pretty.Fdiff(os.Stdout, webhookMsg, msg)
-			return ErrNotMatchedInWebhook
+			return errors.Wrap(ErrNotMatchedInWebhook, strings.Join(diff, ","))
 		case <-timeout:
 			events.Log("didn't find message %{id}v in webhook after timeout", expectedID)
 			return ErrMissingInWebhook
