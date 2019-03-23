@@ -103,7 +103,7 @@ func (t *T) Test(invoker Invoker) error {
 			msgType := msg["type"].(string)
 
 			if t.shouldSkipFixture(fixture) {
-				events.Log("skip fixture %{fixture}v", fixture)
+				events.Debug("skip fixture %{fixture}v", fixture)
 				testrun.Skip()
 				testrun.Print(t.Output)
 				continue
@@ -186,7 +186,7 @@ func (t *T) Test(invoker Invoker) error {
 				res = err
 			}
 
-			events.Log("sent message for fixture %{fixture}v", fixture)
+			events.Debug("sent message for fixture %{fixture}v", fixture)
 
 			if err := t.testMessage(msg); err != nil {
 				testrun.Fail(err.Error(), string(buf.Bytes()))
@@ -246,10 +246,10 @@ func (t *T) testMessage(msg map[string]interface{}) error {
 				return nil
 			}
 
-			events.Log("found id %{id}v, but could not match content", expectedID)
+			events.Debug("found id %{id}v, but could not match content", expectedID)
 			return errors.Wrap(ErrNotMatchedInWebhook, strings.Join(diff, ","))
 		case <-timeout:
-			events.Log("didn't find message %{id}v in webhook after timeout", expectedID)
+			events.Debug("didn't find message %{id}v in webhook after timeout", expectedID)
 			return ErrMissingInWebhook
 		}
 	}
