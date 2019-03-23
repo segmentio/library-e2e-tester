@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	backo "github.com/segmentio/backo-go"
 	"github.com/segmentio/events"
 	"github.com/segmentio/library-e2e-tester/webhook"
 )
@@ -228,9 +227,8 @@ func (t *T) testMessage(msg map[string]interface{}) error {
 
 	expectedID, _ := pickID(msg, key)
 
-	backo := backo.NewBacko(2*time.Second, 2, 1, 5*time.Second)
-	ticker := backo.NewTicker()
-	timeout := time.After(3 * time.Minute)
+	ticker := time.NewTicker(1 * time.Second)
+	timeout := time.After(2 * time.Minute)
 	for {
 		select {
 		case <-ticker.C:

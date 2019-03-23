@@ -35,10 +35,6 @@
 
 [[constraint]]
   branch = "master"
-  name = "github.com/segmentio/backo-go"
-
-[[constraint]]
-  branch = "master"
   name = "github.com/segmentio/conf"
 
 [[constraint]]

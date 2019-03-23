@@ -350,17 +350,17 @@ func AssetNames() []string {
 
 // _bindata is a table, holding each asset generator, mapped to its name.
 var _bindata = map[string]func() (*asset, error){
-	"fixtures/alias/advance-alias.json": fixturesAliasAdvanceAliasJson,
-	"fixtures/alias/alias.json": fixturesAliasAliasJson,
-	"fixtures/group/advance-group.json": fixturesGroupAdvanceGroupJson,
-	"fixtures/group/group.json": fixturesGroupGroupJson,
+	"fixtures/alias/advance-alias.json":       fixturesAliasAdvanceAliasJson,
+	"fixtures/alias/alias.json":               fixturesAliasAliasJson,
+	"fixtures/group/advance-group.json":       fixturesGroupAdvanceGroupJson,
+	"fixtures/group/group.json":               fixturesGroupGroupJson,
 	"fixtures/identify/advance-identify.json": fixturesIdentifyAdvanceIdentifyJson,
-	"fixtures/identify/identify.json": fixturesIdentifyIdentifyJson,
-	"fixtures/page/page.json": fixturesPagePageJson,
-	"fixtures/screen/advance-screen.json": fixturesScreenAdvanceScreenJson,
-	"fixtures/screen/screen.json": fixturesScreenScreenJson,
-	"fixtures/track/advance-track.json": fixturesTrackAdvanceTrackJson,
-	"fixtures/track/track.json": fixturesTrackTrackJson,
+	"fixtures/identify/identify.json":         fixturesIdentifyIdentifyJson,
+	"fixtures/page/page.json":                 fixturesPagePageJson,
+	"fixtures/screen/advance-screen.json":     fixturesScreenAdvanceScreenJson,
+	"fixtures/screen/screen.json":             fixturesScreenScreenJson,
+	"fixtures/track/advance-track.json":       fixturesTrackAdvanceTrackJson,
+	"fixtures/track/track.json":               fixturesTrackTrackJson,
 }
 
 // AssetDir returns the file names below a certain
@@ -402,30 +402,31 @@ type bintree struct {
 	Func     func() (*asset, error)
 	Children map[string]*bintree
 }
+
 var _bintree = &bintree{nil, map[string]*bintree{
 	"fixtures": &bintree{nil, map[string]*bintree{
 		"alias": &bintree{nil, map[string]*bintree{
 			"advance-alias.json": &bintree{fixturesAliasAdvanceAliasJson, map[string]*bintree{}},
-			"alias.json": &bintree{fixturesAliasAliasJson, map[string]*bintree{}},
+			"alias.json":         &bintree{fixturesAliasAliasJson, map[string]*bintree{}},
 		}},
 		"group": &bintree{nil, map[string]*bintree{
 			"advance-group.json": &bintree{fixturesGroupAdvanceGroupJson, map[string]*bintree{}},
-			"group.json": &bintree{fixturesGroupGroupJson, map[string]*bintree{}},
+			"group.json":         &bintree{fixturesGroupGroupJson, map[string]*bintree{}},
 		}},
 		"identify": &bintree{nil, map[string]*bintree{
 			"advance-identify.json": &bintree{fixturesIdentifyAdvanceIdentifyJson, map[string]*bintree{}},
-			"identify.json": &bintree{fixturesIdentifyIdentifyJson, map[string]*bintree{}},
+			"identify.json":         &bintree{fixturesIdentifyIdentifyJson, map[string]*bintree{}},
 		}},
 		"page": &bintree{nil, map[string]*bintree{
 			"page.json": &bintree{fixturesPagePageJson, map[string]*bintree{}},
 		}},
 		"screen": &bintree{nil, map[string]*bintree{
 			"advance-screen.json": &bintree{fixturesScreenAdvanceScreenJson, map[string]*bintree{}},
-			"screen.json": &bintree{fixturesScreenScreenJson, map[string]*bintree{}},
+			"screen.json":         &bintree{fixturesScreenScreenJson, map[string]*bintree{}},
 		}},
 		"track": &bintree{nil, map[string]*bintree{
 			"advance-track.json": &bintree{fixturesTrackAdvanceTrackJson, map[string]*bintree{}},
-			"track.json": &bintree{fixturesTrackTrackJson, map[string]*bintree{}},
+			"track.json":         &bintree{fixturesTrackTrackJson, map[string]*bintree{}},
 		}},
 	}},
 }}
@@ -476,4 +477,3 @@ func _filePath(dir, name string) string {
 	cannonicalName := strings.Replace(name, "\\", "/", -1)
 	return filepath.Join(append([]string{dir}, strings.Split(cannonicalName, "/")...)...)
 }
-

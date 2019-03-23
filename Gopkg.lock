@@ -35,14 +35,6 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:ec22607298efbafb122c4e4b2ca8ceb6c4ec1ba72e74705b84f9f2ce8ee77984"
-  name = "github.com/segmentio/backo-go"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "204274ad699c0983a70203a566887f17a717fef4"
-
-[[projects]]
-  branch = "master"
   digest = "1:01ede0b903d4e47d4ebb2fdb14aa6bff755bf4d92858eb4656201324e06aea5f"
   name = "github.com/segmentio/conf"
   packages = ["."]
@@ -127,7 +119,6 @@
     "github.com/go-test/deep",
     "github.com/kr/pretty",
     "github.com/pkg/errors",
-    "github.com/segmentio/backo-go",
     "github.com/segmentio/conf",
     "github.com/segmentio/events",
     "github.com/segmentio/events/text",
