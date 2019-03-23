@@ -111,9 +111,8 @@ func (t *T) Test(invoker Invoker) error {
 				"--type=" + msgType,
 				"--userId=" + msg["userId"].(string),
 			}
-			anonId, ok := msg["anonymousId"]
-			if ok {
-				args = append(args, "--anonymousId="+anonId.(string))
+			if anonymousID, ok := msg["anonymousId"]; ok {
+				args = append(args, "--anonymousId="+anonymousID.(string))
 			}
 			for _, key := range []string{"context", "integrations"} {
 				val, ok := msg[key]
