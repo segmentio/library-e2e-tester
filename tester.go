@@ -210,9 +210,8 @@ func (t *T) testMessage(msg map[string]interface{}) error {
 
 	expectedID, _ := pickID(msg, key)
 
-	ticker := time.NewTicker(1 * time.Second)
+	ticker := time.NewTicker(5 * time.Second)
 	timeout := time.After(t.Timeout)
-	time.Sleep(5 * time.Second) // wait 5 seconds for initial delay.
 	for {
 		select {
 		case <-ticker.C:

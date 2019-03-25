@@ -25,7 +25,7 @@ type Config struct {
 
 func main() {
 	config := Config{
-		Timeout: 1 * time.Minute,
+		Timeout: 5 * time.Minute,
 	}
 	conf.Load(&config)
 
