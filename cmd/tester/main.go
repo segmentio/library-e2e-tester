@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"strings"
@@ -8,9 +9,8 @@ import (
 
 	"github.com/segmentio/conf"
 	"github.com/segmentio/events"
+	"github.com/segmentio/events/text"
 	tester "github.com/segmentio/library-e2e-tester"
-
-	_ "github.com/segmentio/events/text"
 )
 
 // Config represents the options that can be supplied to the harness.
@@ -32,13 +32,7 @@ func main() {
 	}
 	conf.Load(&config)
 
-	if config.Debug {
-		events.DefaultLogger.EnableDebug = true
-		events.DefaultLogger.EnableSource = true
-	} else {
-		events.DefaultLogger.EnableDebug = false
-		events.DefaultLogger.EnableSource = false
-	}
+	configureLogging(config.Debug)
 
 	invoker := tester.NewCLIInvoker(config.Path)
 
@@ -56,6 +50,21 @@ func main() {
 	if err != nil {
 		events.Log("test error: %{error}v", err)
 		os.Exit(1)
+	}
+}
+
+// configureLogging enables debug logging based on the argument provided.
+// It also configures logs to be printed on os.Stderr as we want to keep the
+// standard output clean.
+func configureLogging(debug bool) {
+	prefix := fmt.Sprintf("library-e2e-tester[%d]: ", os.Getpid())
+	events.DefaultHandler = text.NewHandler(prefix, os.Stderr)
+	if debug {
+		events.DefaultLogger.EnableDebug = true
+		events.DefaultLogger.EnableSource = true
+	} else {
+		events.DefaultLogger.EnableDebug = false
+		events.DefaultLogger.EnableSource = false
 	}
 }
 
