@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"os"
 	"strings"
 	"time"
@@ -20,7 +19,6 @@ type Config struct {
 	WebhookBucket       string        `conf:"webhook-bucket"           help:"webhook bucket the Segment project sends data to" validate:"nonzero"`
 	WebhookAuthUsername string        `conf:"webhook-auth-username"    help:"basic auth username for the webhook bucket the Segment project sends data to" validate:"nonzero"`
 	FailFast            bool          `conf:"failfast"                 help:"disable running additional tests after any test fails"`
-	TestResultFile      string        `conf:"test-result-file"         help:"file name to write test results"`
 	SkipFixtures        string        `conf:"skip-fixtures"            help:"comma-separated list of fixtures to skip"`
 	Timeout             time.Duration `conf:"timeout"                  help:"Timeout before giving up checking on a message"`
 	Debug               bool          `conf:"debug"                    help:"Enable Debugging"`
@@ -40,7 +38,7 @@ func main() {
 		SegmentWriteKey:     config.SegmentWriteKey,
 		WebhookBucket:       config.WebhookBucket,
 		WebhookAuthUsername: config.WebhookAuthUsername,
-		Output:              makeOutputWriter(config.TestResultFile),
+		Output:              os.Stdout,
 		FailFast:            config.FailFast,
 		SkipFixtures:        strings.Split(config.SkipFixtures, ","),
 		Timeout:             config.Timeout,
@@ -66,19 +64,4 @@ func configureLogging(debug bool) {
 		events.DefaultLogger.EnableDebug = false
 		events.DefaultLogger.EnableSource = false
 	}
-}
-
-// makeOutputWriter returns an io.Writer for the tester to write results to.
-func makeOutputWriter(testResultFile string) io.Writer {
-	if testResultFile == "" {
-		return os.Stdout
-	}
-
-	f, err := os.Create(testResultFile)
-	if err != nil {
-		events.Log("error creating file %{file}v: %{error}v", testResultFile, err)
-		os.Exit(1)
-	}
-
-	return io.MultiWriter(os.Stdout, f)
 }
