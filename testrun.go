@@ -24,11 +24,19 @@ type TestRun struct {
 	EndTime      time.Time
 	Result       string
 	Details      string
+	Output       io.Writer
+}
+
+// NewTestRun returns an initialized TestRun struct.
+func NewTestRun(testcase string, output io.Writer) TestRun {
+	return TestRun{
+		TestCaseName: testcase,
+		Output:       output,
+	}
 }
 
 // Start begins the test.
 func (tr *TestRun) Start(testcase string) {
-	tr.TestCaseName = testcase
 	tr.StartTime = time.Now()
 }
 
@@ -44,42 +52,49 @@ func (tr *TestRun) Pass() {
 
 // Error ends the test with an error and the given message.
 func (tr *TestRun) Error(details ...string) {
-	tr.end(TestError)
 	for _, detail := range details {
 		tr.addDetail(detail)
 	}
+	tr.end(TestError)
 }
 
 // Fail ends the test with a failure and the given message.
 func (tr *TestRun) Fail(details ...string) {
-	tr.end(TestFail)
 	for _, detail := range details {
 		tr.addDetail(detail)
 	}
+	tr.end(TestFail)
 }
 
-// Print writes information about the test run in "go test" output format.
-func (tr *TestRun) Print(writer io.Writer) error {
-	if tr.Result == TestSkip {
-		_, err := fmt.Fprintf(writer, "=== %v %v\n", TestSkip, tr.TestCaseName)
-		return err
-	}
-	elapsed := tr.EndTime.Sub(tr.StartTime)
-	_, err := fmt.Fprintf(writer, "=== RUN %v\n", tr.TestCaseName)
-	if err != nil {
-		return err
-	}
-	_, err = fmt.Fprintf(writer, "--- %v: %v (%f seconds)\n", tr.Result, tr.TestCaseName, elapsed.Seconds())
-	if tr.Details != "" {
-		_, err = fmt.Fprintf(writer, "			%v\n", tr.Details)
-	}
-	return err
-}
-
-// end ends the test with the given result.
+// end ends the test with the given result and prints a report.
 func (tr *TestRun) end(result string) {
 	tr.EndTime = time.Now()
 	tr.Result = result
+	tr.report()
+}
+
+// report writes information about the test run in "go test" output format.
+func (tr *TestRun) report() error {
+	if tr.Result == TestSkip {
+		return tr.printf("=== %v %v\n", TestSkip, tr.TestCaseName)
+	}
+	elapsed := tr.EndTime.Sub(tr.StartTime)
+	if err := tr.printf("=== RUN %v\n", tr.TestCaseName); err != nil {
+		return err
+	}
+	if err := tr.printf("--- %v: %v (%f seconds)\n", tr.Result, tr.TestCaseName, elapsed.Seconds()); err != nil {
+		return err
+	}
+	if tr.Details != "" {
+		tr.printf("			%v\n", tr.Details)
+	}
+	return nil
+}
+
+// printf writes information about the test run in "go test" output format.
+func (tr *TestRun) printf(format string, a ...interface{}) error {
+	_, err := fmt.Fprintf(tr.Output, format, a...)
+	return err
 }
 
 // addDetail adds a detail about the test run.

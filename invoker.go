@@ -13,7 +13,7 @@ type Invoker func(ctx context.Context, args ...string) error
 func NewCLIInvoker(path string) Invoker {
 	return Invoker(func(ctx context.Context, args ...string) error {
 		cmd := exec.CommandContext(ctx, path, args...)
-		cmd.Stdout = os.Stdout
+		cmd.Stdout = os.Stderr // log output to stderr so we can report results in a consistent format.
 		cmd.Stderr = os.Stderr
 		return cmd.Run()
 	})

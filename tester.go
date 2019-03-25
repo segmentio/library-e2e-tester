@@ -70,8 +70,7 @@ func (t *T) Test(invoker Invoker) error {
 		for _, fixture := range fixtures {
 			events.Debug("running %{fixture}v", fixture)
 
-			var testrun TestRun
-			testrun.Start(fixture)
+			testrun := NewTestRun(fixture, t.Output)
 
 			f, err := Asset("fixtures/" + dir + "/" + fixture)
 			if err != nil {
@@ -99,7 +98,6 @@ func (t *T) Test(invoker Invoker) error {
 			if t.shouldSkipFixture(fixture) {
 				events.Debug("skip fixture %{fixture}v", fixture)
 				testrun.Skip()
-				testrun.Print(t.Output)
 				continue
 			}
 
@@ -179,8 +177,6 @@ func (t *T) Test(invoker Invoker) error {
 			} else {
 				testrun.Pass()
 			}
-
-			testrun.Print(t.Output)
 		}
 	}
 
