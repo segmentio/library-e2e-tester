@@ -40,7 +40,7 @@ func main() {
 		WebhookAuthUsername: config.WebhookAuthUsername,
 		Output:              os.Stdout,
 		FailFast:            config.FailFast,
-		SkipFixtures:        strings.Split(config.SkipFixtures, ","),
+		SkipFixtures:        splitStringList(config.SkipFixtures),
 		Timeout:             config.Timeout,
 	}
 
@@ -49,6 +49,15 @@ func main() {
 		events.Log("test error: %{error}v", err)
 		os.Exit(1)
 	}
+}
+
+// splitStringList slices s into all substrings separated by a comma and returns a slice of the substrings.
+// It differs from strings.Split by returning an empty array if s is an empty string.
+func splitStringList(s string) []string {
+	if strings.TrimSpace(s) == "" {
+		return []string{}
+	}
+	return strings.Split(s, ",")
 }
 
 // configureLogging enables debug logging based on the argument provided.
