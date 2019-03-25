@@ -22,7 +22,7 @@ type Config struct {
 	FailFast            bool          `conf:"failfast"                 help:"disable running additional tests after any test fails"`
 	TestResultFile      string        `conf:"test-result-file"         help:"file name to write test results"`
 	SkipFixtures        string        `conf:"skip-fixtures"            help:"comma-separated list of fixtures to skip"`
-	Timeout             time.Duration `conf:"timeout"                    help:"Timeout before giving up checking on a message"`
+	Timeout             time.Duration `conf:"timeout"                  help:"Timeout before giving up checking on a message"`
 	Debug               bool          `conf:"debug"                    help:"Enable Debugging"`
 }
 
