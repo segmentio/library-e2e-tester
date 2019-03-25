@@ -6,15 +6,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
-	"net/url"
-	"os"
+	"regexp"
 	"strings"
 	"time"
 
-	"github.com/kr/pretty"
 	"github.com/pkg/errors"
-	backo "github.com/segmentio/backo-go"
 	"github.com/segmentio/events"
 	"github.com/segmentio/library-e2e-tester/webhook"
 )
@@ -30,16 +26,21 @@ type T struct {
 	SegmentWriteKey     string
 	WebhookBucket       string
 	WebhookAuthUsername string
-	ReportFileName      string
+	Output              io.Writer
 	FailFast            bool // disable running additional tests after any test fails
-	SkipMessages        []string
+	SkipFixtures        []string
+	Timeout             time.Duration
 }
 
-// Check whether the tester should skip messages of the given message type
-func (t *T) SkipMessageType(msgType string) bool {
-	for _, skipType := range t.SkipMessages {
-		// mesasge type comparison should be case-insensitive
-		if strings.EqualFold(skipType, msgType) {
+// shouldSkipFixture returns true if the tester should skip the given fixture.
+func (t *T) shouldSkipFixture(fixture string) bool {
+	for _, regex := range t.SkipFixtures {
+		matched, err := regexp.MatchString(regex, fixture)
+		if err != nil {
+			events.Debug("error matching %{fixture}s to %{regex}s", fixture, regex)
+			continue
+		}
+		if matched {
 			return true
 		}
 	}
@@ -50,15 +51,6 @@ func (t *T) SkipMessageType(msgType string) bool {
 func (t *T) Test(invoker Invoker) error {
 	var res error
 	ctx := context.Background()
-
-	var reportWriter io.Writer
-	if t.ReportFileName != "" {
-		if reportWriter, res = os.Create(t.ReportFileName); res != nil {
-			return res
-		}
-	} else {
-		reportWriter = ioutil.Discard
-	}
 
 	fixturesDirectory, err := AssetDir("fixtures")
 	if err != nil {
@@ -110,10 +102,10 @@ func (t *T) Test(invoker Invoker) error {
 
 			msgType := msg["type"].(string)
 
-			if t.SkipMessageType(msgType) {
-				events.Log("Skip message for fixture %{fixture}v", fixture)
+			if t.shouldSkipFixture(fixture) {
+				events.Debug("skip fixture %{fixture}v", fixture)
 				testrun.Skip()
-				testrun.Print(reportWriter)
+				testrun.Print(t.Output)
 				continue
 			}
 
@@ -122,16 +114,15 @@ func (t *T) Test(invoker Invoker) error {
 				"--type=" + msgType,
 				"--userId=" + msg["userId"].(string),
 			}
-			anonId, ok := msg["anonymousId"]
-			if ok {
-				args = append(args, "--anonymousId="+anonId.(string))
+			if anonymousID, ok := msg["anonymousId"]; ok {
+				args = append(args, "--anonymousId="+anonymousID.(string))
 			}
 			for _, key := range []string{"context", "integrations"} {
 				val, ok := msg[key]
 				if ok {
 					jsonStr, err := json.Marshal(val)
 					if err == nil {
-						args = append(args, "--"+key+"="+url.PathEscape(string(jsonStr)))
+						args = append(args, "--"+key+"="+string(jsonStr))
 					}
 				}
 			}
@@ -195,20 +186,19 @@ func (t *T) Test(invoker Invoker) error {
 				res = err
 			}
 
-			events.Log("sent message for fixture %{fixture}v", fixture)
+			events.Debug("sent message for fixture %{fixture}v", fixture)
 
 			if err := t.testMessage(msg); err != nil {
-				testrun.Fail(err.Error())
-				testrun.AddDetails(string(buf.Bytes()))
+				testrun.Fail(err.Error(), string(buf.Bytes()))
 				if t.FailFast {
 					return err
 				}
 				res = err
 			} else {
-				testrun.End(TEST_PASS)
+				testrun.Pass()
 			}
 
-			testrun.Print(reportWriter)
+			testrun.Print(t.Output)
 		}
 	}
 
@@ -238,9 +228,9 @@ func (t *T) testMessage(msg map[string]interface{}) error {
 
 	expectedID, _ := pickID(msg, key)
 
-	backo := backo.NewBacko(2*time.Second, 2, 1, 5*time.Second)
-	ticker := backo.NewTicker()
-	timeout := time.After(3 * time.Minute)
+	ticker := time.NewTicker(1 * time.Second)
+	timeout := time.After(t.Timeout)
+	time.Sleep(5 * time.Second) // wait 5 seconds for initial delay.
 	for {
 		select {
 		case <-ticker.C:
@@ -250,16 +240,16 @@ func (t *T) testMessage(msg map[string]interface{}) error {
 				continue
 			}
 
-			if SegmentEqual(webhookMsg, msg) {
+			equal, diff := SegmentEqual(webhookMsg, msg)
+			if equal {
 				events.Debug("matched: %{id}v", expectedID)
 				return nil
 			}
 
-			events.Log("found id %{id}v, but could not match content", expectedID)
-			pretty.Fdiff(os.Stdout, webhookMsg, msg)
-			return ErrNotMatchedInWebhook
+			events.Debug("found id %{id}v, but could not match content", expectedID)
+			return errors.Wrap(ErrNotMatchedInWebhook, strings.Join(diff, ","))
 		case <-timeout:
-			events.Log("didn't find message %{id}v in webhook after timeout", expectedID)
+			events.Debug("didn't find message %{id}v in webhook after timeout", expectedID)
 			return ErrMissingInWebhook
 		}
 	}

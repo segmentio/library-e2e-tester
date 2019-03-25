@@ -1,8 +1,7 @@
 package main
 
 import (
-	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"strings"
 	"time"
@@ -14,45 +13,24 @@ import (
 	_ "github.com/segmentio/events/text"
 )
 
-/* print content of test result file on stdout */
-func printTestResults(resultFile string) {
-	fmt.Println("Test result file: ", resultFile)
-	testResults, err := ioutil.ReadFile(resultFile) // just pass the file name
-	if err != nil {
-		events.Log("error print results: %{error}v", err)
-	}
-	fmt.Println(string(testResults))
+// Config represents the options that can be supplied to the harness.
+type Config struct {
+	Path                string        `conf:"path"                     help:"path to the library binary" validate:"nonzero"`
+	SegmentWriteKey     string        `conf:"segment-write-key"        help:"writekey for the Segment project to send data to" validate:"nonzero"`
+	WebhookBucket       string        `conf:"webhook-bucket"           help:"webhook bucket the Segment project sends data to" validate:"nonzero"`
+	WebhookAuthUsername string        `conf:"webhook-auth-username"    help:"basic auth username for the webhook bucket the Segment project sends data to" validate:"nonzero"`
+	FailFast            bool          `conf:"failfast"                 help:"disable running additional tests after any test fails"`
+	TestResultFile      string        `conf:"test-result-file"         help:"file name to write test results"`
+	SkipFixtures        string        `conf:"skip-fixtures"            help:"comma-separated list of fixtures to skip"`
+	Timeout             time.Duration `conf:"timeout"                    help:"Timeout before giving up checking on a message"`
+	Debug               bool          `conf:"debug"                    help:"Enable Debugging"`
 }
 
 func main() {
-	var config struct {
-		Path                string `conf:"path"                     help:"path to the library binary" validate:"nonzero"`
-		SegmentWriteKey     string `conf:"segment-write-key"        help:"writekey for the Segment project to send data to" validate:"nonzero"`
-		WebhookBucket       string `conf:"webhook-bucket"           help:"webhook bucket the Segment project sends data to" validate:"nonzero"`
-		WebhookAuthUsername string `conf:"webhook-auth-username"    help:"basic auth username for the webhook bucket the Segment project sends data to" validate:"nonzero"`
-		FailFast            bool   `conf:"failfast"                 help:"disable running additional tests after any test fails"`
-		TestResultFile      string `conf:"test-result-file"         help:"file name to write test results"`
-		SkipMessages        string `conf:"skip-messages"            help:"comma-separated list of message types to skip"`
-		Debug               bool   `conf:"debug"                    help:"Enable Debugging"`
+	config := Config{
+		Timeout: 1 * time.Minute,
 	}
 	conf.Load(&config)
-
-	// if TestResultFile is not specified, default to
-	// test-results-YYYY-MM-DDTHH:MM:SS.txt (with current time value)
-	if config.TestResultFile == "" {
-		config.TestResultFile = fmt.Sprintf("test-results-%v.txt", time.Now().Format("2006-01-02T15:04:05"))
-	}
-
-	invoker := tester.NewCLIInvoker(config.Path)
-
-	t := &tester.T{
-		SegmentWriteKey:     config.SegmentWriteKey,
-		WebhookBucket:       config.WebhookBucket,
-		WebhookAuthUsername: config.WebhookAuthUsername,
-		ReportFileName:      config.TestResultFile,
-		FailFast:            config.FailFast,
-		SkipMessages:        strings.Split(config.SkipMessages, ","),
-	}
 
 	if config.Debug {
 		events.DefaultLogger.EnableDebug = true
@@ -62,10 +40,36 @@ func main() {
 		events.DefaultLogger.EnableSource = false
 	}
 
+	invoker := tester.NewCLIInvoker(config.Path)
+
+	t := &tester.T{
+		SegmentWriteKey:     config.SegmentWriteKey,
+		WebhookBucket:       config.WebhookBucket,
+		WebhookAuthUsername: config.WebhookAuthUsername,
+		Output:              makeOutputWriter(config.TestResultFile),
+		FailFast:            config.FailFast,
+		SkipFixtures:        strings.Split(config.SkipFixtures, ","),
+		Timeout:             config.Timeout,
+	}
+
 	err := t.Test(invoker)
-	printTestResults(config.TestResultFile)
 	if err != nil {
 		events.Log("test error: %{error}v", err)
 		os.Exit(1)
 	}
+}
+
+// makeOutputWriter returns an io.Writer for the tester to write results to.
+func makeOutputWriter(testResultFile string) io.Writer {
+	if testResultFile == "" {
+		return os.Stdout
+	}
+
+	f, err := os.Create(testResultFile)
+	if err != nil {
+		events.Log("error creating file %{file}v: %{error}v", testResultFile, err)
+		os.Exit(1)
+	}
+
+	return io.MultiWriter(os.Stdout, f)
 }

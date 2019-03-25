@@ -23,6 +23,7 @@ func TestSegmentEqual(t *testing.T) {
 				"version":           "x",
 				"projectId":         "x",
 				"writeKey":          "x",
+				"_metadata":         "x",
 				"context": map[string]interface{}{
 					"library": "x",
 				},
@@ -37,6 +38,7 @@ func TestSegmentEqual(t *testing.T) {
 				"version":           "y",
 				"projectId":         "y",
 				"writeKey":          "y",
+				"_metadata":         "y",
 				"context": map[string]interface{}{
 					"library": "y",
 				},
@@ -104,7 +106,7 @@ func TestSegmentEqual(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.Name, func(t *testing.T) {
-			equal := SegmentEqual(tc.A, tc.B)
+			equal, _ := SegmentEqual(tc.A, tc.B)
 			if equal != tc.Equal {
 				t.Errorf("Expected equality %v but was %v: \nA: %+v\nB: %+v\n", tc.Equal, equal, tc.A, tc.B)
 			}

@@ -7,13 +7,17 @@ import (
 )
 
 const (
-	TEST_PASS  = "PASS"
-	TEST_FAIL  = "FAIL"
-	TEST_SKIP  = "SKIP"
-	TEST_ERROR = "ERROR"
+	// TestPass is the result when a test passes.
+	TestPass = "PASS"
+	// TestFail is the result when a test fails.
+	TestFail = "FAIL"
+	// TestSkip is the result when a test is skipped.
+	TestSkip = "SKIP"
+	// TestError is the result when a test errors.
+	TestError = "ERROR"
 )
 
-/* Data structure to record information about a test run (execution of a test case) */
+// TestRun is the records information about a test run (execution of a test case).
 type TestRun struct {
 	TestCaseName string
 	StartTime    time.Time
@@ -22,38 +26,42 @@ type TestRun struct {
 	Details      string
 }
 
+// Start begins the test.
 func (tr *TestRun) Start(testcase string) {
 	tr.TestCaseName = testcase
 	tr.StartTime = time.Now()
 }
 
-func (tr *TestRun) End(result string) {
-	tr.EndTime = time.Now()
-	tr.Result = result
-}
-
+// Skip skips the test.
 func (tr *TestRun) Skip() {
-	tr.Result = TEST_SKIP
+	tr.end(TestSkip)
 }
 
-func (tr *TestRun) AddDetails(details string) {
-	tr.Details += "\n        " + details + "\n"
+// Pass passes the test.
+func (tr *TestRun) Pass() {
+	tr.end(TestPass)
 }
 
-func (tr *TestRun) Error(errorDetails string) {
-	tr.End(TEST_ERROR)
-	tr.AddDetails(errorDetails)
+// Error ends the test with an error and the given message.
+func (tr *TestRun) Error(details ...string) {
+	tr.end(TestError)
+	for _, detail := range details {
+		tr.addDetail(detail)
+	}
 }
 
-func (tr *TestRun) Fail(failureDetails string) {
-	tr.End(TEST_FAIL)
-	tr.AddDetails(failureDetails)
+// Fail ends the test with a failure and the given message.
+func (tr *TestRun) Fail(details ...string) {
+	tr.end(TestFail)
+	for _, detail := range details {
+		tr.addDetail(detail)
+	}
 }
 
-/* Print out information about the test run in "go test" output format */
+// Print writes information about the test run in "go test" output format.
 func (tr *TestRun) Print(writer io.Writer) error {
-	if tr.Result == TEST_SKIP {
-		_, err := fmt.Fprintf(writer, "=== %v %v\n", TEST_SKIP, tr.TestCaseName)
+	if tr.Result == TestSkip {
+		_, err := fmt.Fprintf(writer, "=== %v %v\n", TestSkip, tr.TestCaseName)
 		return err
 	}
 	elapsed := tr.EndTime.Sub(tr.StartTime)
@@ -66,4 +74,15 @@ func (tr *TestRun) Print(writer io.Writer) error {
 		_, err = fmt.Fprintf(writer, "			%v\n", tr.Details)
 	}
 	return err
+}
+
+// end ends the test with the given result.
+func (tr *TestRun) end(result string) {
+	tr.EndTime = time.Now()
+	tr.Result = result
+}
+
+// addDetail adds a detail about the test run.
+func (tr *TestRun) addDetail(detail string) {
+	tr.Details += "\n        " + detail + "\n"
 }
