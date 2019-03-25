@@ -2,11 +2,11 @@
 
 A CLI testing tool that sends events to Segment and verifies events are received by a webhook connected to Segment.
 
-# Usage
+## Usage
 
 The tester is used as follows:
 
-```
+```bash
 ./tester -segment-write-key='...' -webhook-auth-username='...' -webhook-bucket='...' -path='...'
 ```
 
@@ -14,7 +14,7 @@ The tester will invoke the library CLI with some fixtures, and verify that event
 
 For a library to be tested by this tester, the library must provide a CLI interface that conforms to the contract enforced by the tester:
 
-```
+```bash
 analytics --type=<type>
           --writeKey=<writeKey>
           --userId=<userId>
@@ -23,7 +23,6 @@ analytics --type=<type>
           [--traits=<traits>] # Identify
           [--groupId=<groupId> --traits=<traits>] # Group
 ```
-
 
 The setup must be done manually:
 
