@@ -37,7 +37,7 @@ func (t *T) shouldSkipFixture(fixture string) bool {
 	for _, regex := range t.SkipFixtures {
 		matched, err := regexp.MatchString(regex, fixture)
 		if err != nil {
-			events.Debug("error matching %{fixture}s to %{regex}s", fixture, regex)
+			events.Log("error matching %{fixture}s to %{regex}s", fixture, regex)
 			continue
 		}
 		if matched {
