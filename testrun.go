@@ -36,7 +36,7 @@ func NewTestRun(testcase string, output io.Writer) TestRun {
 }
 
 // Start begins the test.
-func (tr *TestRun) Start(testcase string) {
+func (tr *TestRun) Start() {
 	tr.StartTime = time.Now()
 }
 

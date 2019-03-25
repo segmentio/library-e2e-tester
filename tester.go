@@ -71,6 +71,7 @@ func (t *T) Test(invoker Invoker) error {
 			events.Debug("running %{fixture}v", fixture)
 
 			testrun := NewTestRun(fixture, t.Output)
+			testrun.Start()
 
 			f, err := Asset("fixtures/" + dir + "/" + fixture)
 			if err != nil {
