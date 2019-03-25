@@ -18,7 +18,6 @@ type Config struct {
 	SegmentWriteKey     string        `conf:"segment-write-key"        help:"writekey for the Segment project to send data to" validate:"nonzero"`
 	WebhookBucket       string        `conf:"webhook-bucket"           help:"webhook bucket the Segment project sends data to" validate:"nonzero"`
 	WebhookAuthUsername string        `conf:"webhook-auth-username"    help:"basic auth username for the webhook bucket the Segment project sends data to" validate:"nonzero"`
-	FailFast            bool          `conf:"failfast"                 help:"disable running additional tests after any test fails"`
 	SkipFixtures        string        `conf:"skip-fixtures"            help:"comma-separated list of fixtures to skip"`
 	Timeout             time.Duration `conf:"timeout"                  help:"Timeout before giving up checking on a message"`
 	Debug               bool          `conf:"debug"                    help:"Enable Debugging"`
@@ -39,7 +38,6 @@ func main() {
 		WebhookBucket:       config.WebhookBucket,
 		WebhookAuthUsername: config.WebhookAuthUsername,
 		Output:              os.Stdout,
-		FailFast:            config.FailFast,
 		SkipFixtures:        splitStringList(config.SkipFixtures),
 		Timeout:             config.Timeout,
 	}
