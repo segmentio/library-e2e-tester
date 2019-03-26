@@ -29,22 +29,25 @@ type T struct {
 	WebhookBucket       string
 	WebhookAuthUsername string
 	Output              io.Writer
-	SkipFixtures        []string
+	SkipRegex           string
 	Timeout             time.Duration
 	Concurrency         int
 }
 
 // shouldSkipFixture returns true if the tester should skip the given fixture.
 func (t *T) shouldSkipFixture(fixture string) bool {
-	for _, regex := range t.SkipFixtures {
-		matched, err := regexp.MatchString(regex, fixture)
-		if err != nil {
-			events.Log("error matching %{fixture}s to %{regex}s", fixture, regex)
-			continue
-		}
-		if matched {
-			return true
-		}
+	// don't skip fixture if the provided regex is empty.
+	if strings.TrimSpace(t.SkipRegex) == "" {
+		return false
+	}
+
+	matched, err := regexp.MatchString(t.SkipRegex, fixture)
+	if err != nil {
+		events.Log("error matching %{fixture}s to %{regex}s", fixture, t.SkipRegex)
+		return false
+	}
+	if matched {
+		return true
 	}
 	return false
 }

@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/segmentio/conf"
@@ -18,7 +17,7 @@ type Config struct {
 	SegmentWriteKey     string        `conf:"segment-write-key"        help:"write key for the Segment project to send data to" validate:"nonzero"`
 	WebhookBucket       string        `conf:"webhook-bucket"           help:"webhook bucket the Segment project sends data to" validate:"nonzero"`
 	WebhookAuthUsername string        `conf:"webhook-auth-username"    help:"basic auth username for the webhook bucket the Segment project sends data to" validate:"nonzero"`
-	SkipFixtures        string        `conf:"skip-fixtures"            help:"skip fixtures matching the regex"`
+	Skip                string        `conf:"skip"                     help:"skip fixtures matching the regex. providing an empty string will skip nothing."`
 	Timeout             time.Duration `conf:"timeout"                  help:"if a message does not appear in the webhook within this duration, give up. the default is 5 minutes."`
 	Debug               bool          `conf:"debug"                    help:"enable debug logging"`
 	Concurrency         int           `conf:"concurrency"              help:"allow upto n concurrent tests to run simultaneously. the default is to run 1 test at a time."`
@@ -40,7 +39,7 @@ func main() {
 		WebhookBucket:       config.WebhookBucket,
 		WebhookAuthUsername: config.WebhookAuthUsername,
 		Output:              os.Stdout,
-		SkipFixtures:        splitStringList(config.SkipFixtures),
+		SkipRegex:           config.Skip,
 		Timeout:             config.Timeout,
 		Concurrency:         config.Concurrency,
 	}
@@ -50,15 +49,6 @@ func main() {
 		events.Log("test error: %{error}v", err)
 		os.Exit(1)
 	}
-}
-
-// splitStringList slices s into all substrings separated by a comma and returns a slice of the substrings.
-// It differs from strings.Split by returning an empty array if s is an empty string.
-func splitStringList(s string) []string {
-	if strings.TrimSpace(s) == "" {
-		return []string{}
-	}
-	return strings.Split(s, ",")
 }
 
 // configureLogging enables debug logging based on the argument provided.
