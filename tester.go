@@ -8,8 +8,10 @@ import (
 	"io"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 
+	"github.com/f2prateek/semaphore"
 	"github.com/pkg/errors"
 	"github.com/segmentio/events"
 	"github.com/segmentio/library-e2e-tester/webhook"
@@ -29,6 +31,7 @@ type T struct {
 	Output              io.Writer
 	SkipFixtures        []string
 	Timeout             time.Duration
+	Concurrency         int
 }
 
 // shouldSkipFixture returns true if the tester should skip the given fixture.
@@ -55,9 +58,12 @@ func (t *T) Test(invoker Invoker) error {
 		return errors.Wrap(err, "could not read fixtures directory")
 	}
 
-	var testErrors []error
+	// mutex to restrict test reports to write one at a time.
+	var outputMutex sync.Mutex
 
-	producer := NewTemplatedProducer()
+	s := semaphore.New(t.Concurrency)
+	var wg sync.WaitGroup
+	errC := make(chan error, len(fixturesDirectory))
 
 	for _, dir := range fixturesDirectory {
 		fixtures, err := AssetDir("fixtures/" + dir)
@@ -68,22 +74,45 @@ func (t *T) Test(invoker Invoker) error {
 		events.Debug("running %{count}d fixtures in %{directory}v", len(fixtures), dir)
 
 		for _, fixture := range fixtures {
-			if err := t.runTestCase(ctx, dir, fixture, producer, invoker); err != nil {
-				testErrors = append(testErrors, errors.Wrap(err, "fixture: "+fixture))
-			}
+			wg.Add(1)
+			s.Acquire(1)
+
+			go func(directory, fixture string) {
+				defer wg.Done()
+				defer s.Release(1)
+
+				var buf bytes.Buffer
+				if err := t.runTestCase(ctx, directory, fixture, invoker, &buf); err != nil {
+					events.Log("fixture %{fixture}s: %{error}v", fixture, err)
+					errC <- errors.Wrap(err, "fixture: "+fixture)
+				}
+
+				outputMutex.Lock()
+				if _, err := io.Copy(t.Output, &buf); err != nil {
+					events.Log("error writing test result to output: %{error}v", err)
+				}
+				outputMutex.Unlock()
+			}(dir, fixture)
 		}
 	}
 
+	wg.Wait()
+	close(errC)
+
+	var testErrors []error
+	for err := range errC {
+		testErrors = append(testErrors, err)
+	}
 	if len(testErrors) == 0 {
 		return nil
 	}
 	return fmt.Errorf("%v", testErrors)
 }
 
-func (t *T) runTestCase(ctx context.Context, directory, fixture string, producer Producer, invoker Invoker) error {
+func (t *T) runTestCase(ctx context.Context, directory, fixture string, invoker Invoker, output io.Writer) error {
 	events.Debug("running %{fixture}v", fixture)
 
-	testrun := NewTestRun(fixture, t.Output)
+	testrun := NewTestRun(fixture, output)
 	testrun.Start()
 
 	// testError reports a test error with the given reason, and returns the error wrapped with the reason.
@@ -97,6 +126,7 @@ func (t *T) runTestCase(ctx context.Context, directory, fixture string, producer
 		return testError(err, "could not read fixture")
 	}
 
+	producer := NewTemplatedProducer()
 	var buf bytes.Buffer
 	if err := producer.Produce(ctx, bytes.NewReader(f), &buf); err != nil {
 		return testError(err, "could not produce messages")

@@ -2,6 +2,14 @@
 
 
 [[projects]]
+  branch = "master"
+  digest = "1:f6e0b68bce781e6ae4f288ae3a96e94ae9278b7aa658bf9ca8aeab8732ee7658"
+  name = "github.com/f2prateek/semaphore"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "407301f194ce6f9cf4da7c3e3e2b3cfcd2d83bfa"
+
+[[projects]]
   digest = "1:7f89e0c888fb99c61055c646f5678aae645b0b0a1443d9b2dcd9964d850827ce"
   name = "github.com/go-test/deep"
   packages = ["."]
@@ -116,6 +124,7 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/f2prateek/semaphore",
     "github.com/go-test/deep",
     "github.com/kr/pretty",
     "github.com/pkg/errors",
