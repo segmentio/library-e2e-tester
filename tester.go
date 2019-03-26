@@ -88,7 +88,7 @@ func (t *T) runTestCase(ctx context.Context, directory, fixture string, producer
 
 	// testError reports a test error with the given reason, and returns the error wrapped with the reason.
 	testError := func(err error, reason string) error {
-		testrun.Error("could not read fixture")
+		testrun.Error(reason)
 		return errors.Wrap(err, reason)
 	}
 
