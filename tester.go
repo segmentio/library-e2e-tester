@@ -170,8 +170,7 @@ func (t *T) runTestCase(ctx context.Context, directory, fixture string, invoker 
 	case "track":
 		properties, err := json.Marshal(msg["properties"])
 		if err != nil {
-			testrun.Error("could not marshal properties")
-			return errors.Wrap(err, "could not marshal properties")
+			return testError(err, "could not marshal properties")
 		}
 		args = append(args, "--event="+msg["event"].(string), "--properties="+string(properties))
 	case "screen":
