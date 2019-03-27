@@ -66,7 +66,7 @@ func (t *T) Test(invoker Invoker) error {
 
 	s := semaphore.New(t.Concurrency)
 	var wg sync.WaitGroup
-	errC := make(chan error, len(fixturesDirectory))
+	errC := make(chan error, len(fixturesDirectory)*5) // todo: properly synchronize this.
 
 	for _, dir := range fixturesDirectory {
 		fixtures, err := AssetDir("fixtures/" + dir)
