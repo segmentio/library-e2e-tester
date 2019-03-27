@@ -209,7 +209,7 @@ func (t *T) runTestCase(ctx context.Context, directory, fixture string, invoker 
 
 	if err := t.testMessage(msg); err != nil {
 		testrun.Fail(err.Error(), string(buf.Bytes()))
-		return testError(err, "could not test message")
+		return errors.Wrap(err, "could not test message")
 	}
 
 	testrun.Pass()
