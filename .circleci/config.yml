@@ -80,4 +80,4 @@ workflows:
               ignore: /.*/
             # release only on tag push events like vX[.Y.Z...][-whatever]
             tags:
-              only: /v[0-9]+(\.[0-9]+)*(-[a-zA-Z0-9-]+)?/
+              only: /[0-9]+(\.[0-9]+)*(-[a-zA-Z0-9-]+)?/
