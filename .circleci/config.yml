@@ -4,18 +4,17 @@ jobs:
     working_directory: /go/src/github.com/segmentio/library-e2e-tester
 
     docker:
-      - image: circleci/golang
+      - image: circleci/golang:1.12.1
 
     steps:
       - checkout
 
       - restore_cache:
-          key: deps-{{ checksum "Gopkg.lock" }}
+          key: deps-v2-{{ checksum "go.sum" }}
 
       - run:
           name: Dependencies
           command: |
-            go get -u github.com/golang/dep/cmd/dep
             make deps
 
       - run:
@@ -24,6 +23,6 @@ jobs:
             make test
 
       - save_cache:
-          key: deps-{{ checksum "Gopkg.lock" }}
+          key: deps-v2-{{ checksum "go.sum" }}
           paths:
-            - vendor/
+            - /go/pkg/mod

@@ -5,12 +5,15 @@ build:
 	gox -output="build/{{.Dir}}_{{.OS}}_{{.Arch}}" -parallel=4 ./...
 
 deps:
-	$Qdep ensure
+	GO111MODULE=on go mod download
+
+install: deps
+	GO111MODULE=on go mod tidy
 
 vet:
-	$Qgo vet -composites=false ./...
+	GO111MODULE=on go vet -composites=false ./...
 
 test: vet
-	$Qgo test -v -cover -race ./...
+	GO111MODULE=on go test -v -cover -race ./...
 
-.PHONY: fixtures build deps vet test
+.PHONY: fixtures build deps install vet test
