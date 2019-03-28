@@ -1,16 +1,19 @@
 fixtures:
 	go-bindata fixtures/...
 
-build:
-	gox -output="build/{{.Dir}}_{{.OS}}_{{.Arch}}" -parallel=4 ./...
+dist:
+	GO111MODULE=on .buildscript/dist.sh
 
 deps:
-	$Qdep ensure
+	GO111MODULE=on go mod download
+
+install: deps
+	GO111MODULE=on go mod tidy
 
 vet:
-	$Qgo vet -composites=false ./...
+	GO111MODULE=on go vet -composites=false ./...
 
 test: vet
-	$Qgo test -v -cover -race ./...
+	GO111MODULE=on go test -v -cover -race ./...
 
-.PHONY: fixtures build deps vet test
+.PHONY: fixtures dist deps install vet test

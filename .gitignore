@@ -1,4 +1,4 @@
 vendor/
 test_generated/
-build/
+dist/
 .DS_Store
