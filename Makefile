@@ -2,7 +2,7 @@ fixtures:
 	go-bindata fixtures/...
 
 dist:
-	.buildscript/dist.sh
+	GO111MODULE=on .buildscript/dist.sh
 
 deps:
 	GO111MODULE=on go mod download
