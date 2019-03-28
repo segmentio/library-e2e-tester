@@ -2,7 +2,7 @@ fixtures:
 	go-bindata fixtures/...
 
 dist:
-	gox -output="build/{{.Dir}}_{{.OS}}_{{.Arch}}" ./...
+	.buildscript/dist.sh
 
 deps:
 	GO111MODULE=on go mod download

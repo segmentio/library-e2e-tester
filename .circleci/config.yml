@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  build:
+  test:
     working_directory: /go/src/github.com/segmentio/library-e2e-tester
 
     docker:
@@ -26,3 +26,58 @@ jobs:
           key: deps-v2-{{ checksum "go.sum" }}
           paths:
             - /go/pkg/mod
+
+  dist:
+    working_directory: /go/src/github.com/segmentio/library-e2e-tester
+    
+    docker:
+      - image: circleci/golang:1.12.1
+    
+    steps:
+      - checkout
+
+      - run:
+          name: Make distributables
+          command: |
+            make dist
+
+      - persist_to_workspace:
+          root: .
+          paths: ['dist/*']
+
+  publish:
+    working_directory: /go/src/github.com/segmentio/library-e2e-tester
+
+    docker:
+      - image: circleci/golang:1.12.1
+
+    steps:
+      - checkout
+
+      - attach_workspace: { at: . }
+
+      - run:
+          name: Publish
+          command: |
+            .buildscript/publish.sh
+
+workflows:
+  version: 2
+  test-dist-publish:
+    jobs:
+      - test
+      - dist:
+          # needed to ensure dist happens on tag events
+          filters:
+            tags:
+              only: /.*/
+      - publish:
+          requires:
+            - dist
+          filters:
+            # never publish from a branch event
+            branches:
+              ignore: /.*/
+            # release only on tag push events like vX[.Y.Z...][-whatever]
+            tags:
+              only: /v[0-9]+(\.[0-9]+)*(-[a-zA-Z0-9-]+)?/
