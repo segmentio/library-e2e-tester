@@ -1,8 +1,12 @@
-Releasing
-=========
+# Releasing
 
-1. Build executables for different platforms: cmd/build.sh
-2. Push the new version number as a tag (git push origin X.Y.Z)
-3. Edit the newly created release X.Y.Z on Github
-4. Add release notes describing the changes in the release
-5. Attach all the files created in step 1 to the release
+Binaries are automatially published on tags from our CI using [`github-release`](https://github.com/aktau/github-release).
+
+## git-extras
+
+If you have [`git-extras`](https://github.com/tj/git-extras) installed, you can simply run `git release --semver major/minor/patch`. See the [documentation](https://github.com/tj/git-extras/blob/master/Commands.md#git-release) for details.
+
+## manual
+
+1. Tag a release with `git tag -a x.y.z -m "Version x.y.z"` where `x.y.z` is the version you are releasing.
+2. Publish your tags with `git push --tags`.
