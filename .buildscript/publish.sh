@@ -9,22 +9,16 @@ fi
 user=segmentio
 repo=library-e2e-tester
 
-version=$(shell git describe --tags --always --dirty="-dev")
-
-# set --pre-release if there's a `-` in the tag
-if [[ $version == *"-"* ]]; then
-  github_release_flags := "--pre-release"
-fi
+version=$(git describe --tags --always --dirty="-dev")
 
 github-release release \
 	--security-token $GH_LOGIN \
 	--user $user \
 	--repo $repo \
-  $(github_release_flags) \
 	--tag $version \
 	--name $version
 
-for file in build/*; do
+for file in dist/*; do
     github-release upload \
     	--security-token $GH_LOGIN \
         --user $user \
