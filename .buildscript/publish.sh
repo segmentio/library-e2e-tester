@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -ex
+set -e
 
 if ! [ -x "$(command -v github-release)" ]; then
   go get -u github.com/aktau/github-release
