@@ -11,6 +11,8 @@ import (
 	tester "github.com/segmentio/library-e2e-tester"
 )
 
+var Version = "dev"
+
 // Config represents the options that can be supplied to the harness.
 type Config struct {
 	Path                string        `conf:"path"                     help:"path to the library binary" validate:"nonzero"`
@@ -55,7 +57,7 @@ func main() {
 // It also configures logs to be printed on os.Stderr as we want to keep the
 // standard output clean.
 func configureLogging(debug bool) {
-	prefix := fmt.Sprintf("library-e2e-tester[%d]: ", os.Getpid())
+	prefix := fmt.Sprintf("library-e2e-tester@%s[%d]: ", Version, os.Getpid())
 	events.DefaultHandler = text.NewHandler(prefix, os.Stderr)
 	if debug {
 		events.DefaultLogger.EnableDebug = true
