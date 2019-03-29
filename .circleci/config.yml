@@ -36,6 +36,13 @@ jobs:
     steps:
       - checkout
 
+      - attach_workspace: { at: . }
+
+      - run:
+          name: Install tools
+          command: |
+            make tools
+
       - run:
           name: Make distributables
           command: |

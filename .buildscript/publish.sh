@@ -2,10 +2,6 @@
 
 set -e
 
-if ! [ -x "$(command -v github-release)" ]; then
-  go install github.com/aktau/github-release
-fi
-
 user=segmentio
 repo=library-e2e-tester
 

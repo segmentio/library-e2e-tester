@@ -1,3 +1,6 @@
+tools:
+    cd tools; GO111MODULE=on go mod download
+
 fixtures:
 	go-bindata fixtures/...
 
@@ -16,4 +19,4 @@ vet:
 test: vet
 	GO111MODULE=on go test -v -cover -race ./...
 
-.PHONY: fixtures dist deps install vet test
+.PHONY: tools fixtures dist deps install vet test
