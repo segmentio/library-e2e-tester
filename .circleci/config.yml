@@ -74,6 +74,8 @@ workflows:
     jobs:
       - test
       - dist:
+          requires:
+            - test
           # needed to ensure dist happens on tag events
           filters:
             tags:
