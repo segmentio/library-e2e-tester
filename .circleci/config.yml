@@ -36,6 +36,8 @@ jobs:
     steps:
       - checkout
 
+      - attach_workspace: { at: . }
+
       - run:
           name: Make distributables
           command: |
@@ -67,6 +69,8 @@ workflows:
     jobs:
       - test
       - dist:
+          requires:
+            - test
           # needed to ensure dist happens on tag events
           filters:
             tags:
