@@ -3,7 +3,7 @@
 set -e
 
 if ! [ -x "$(command -v gox)" ]; then
-  go install github.com/mitchellh/gox
+  (cd /tmp; go get -u github.com/mitchellh/gox)
 fi
 
 version=$(git describe --tags --always --dirty="-dev")

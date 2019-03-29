@@ -3,7 +3,7 @@
 set -e
 
 if ! [ -x "$(command -v github-release)" ]; then
-  go install github.com/aktau/github-release
+  (cd /tmp; go get -u github.com/mitchellh/gox)
 fi
 
 user=segmentio
