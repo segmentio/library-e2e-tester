@@ -1,5 +1,5 @@
 tools:
-    cd tools; GO111MODULE=on go mod download
+	cd tools; GO111MODULE=on go mod download
 
 fixtures:
 	go-bindata fixtures/...
