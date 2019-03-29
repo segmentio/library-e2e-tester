@@ -61,12 +61,10 @@ func (t *T) Test(invoker Invoker) error {
 		return errors.Wrap(err, "could not read fixtures directory")
 	}
 
-	// mutex to restrict test reports to write one at a time.
-	var outputMutex sync.Mutex
-
+	var outputMutex sync.Mutex // mutex to ensure test results are written one at a time.
 	s := semaphore.New(t.Concurrency)
 	var wg sync.WaitGroup
-	errC := make(chan error, len(fixturesDirectory)*5) // todo: properly synchronize this.
+	errC := make(chan error, 1)
 
 	for _, dir := range fixturesDirectory {
 		fixtures, err := AssetDir("fixtures/" + dir)
@@ -78,9 +76,10 @@ func (t *T) Test(invoker Invoker) error {
 
 		for _, fixture := range fixtures {
 			wg.Add(1)
-			s.Acquire(1)
 
 			go func(directory, fixture string) {
+				s.Acquire(1)
+
 				defer wg.Done()
 				defer s.Release(1)
 
@@ -99,8 +98,10 @@ func (t *T) Test(invoker Invoker) error {
 		}
 	}
 
-	wg.Wait()
-	close(errC)
+	go func() {
+		wg.Wait()
+		close(errC)
+	}()
 
 	var testErrors []error
 	for err := range errC {
