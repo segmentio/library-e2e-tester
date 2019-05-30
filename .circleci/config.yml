@@ -74,6 +74,7 @@ workflows:
             tags:
               only: /.*/
       - publish:
+          context: github-segmentcircle-oss-release
           requires:
             - dist
           filters:
