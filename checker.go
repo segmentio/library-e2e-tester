@@ -17,7 +17,7 @@ func SegmentEqual(a, b map[string]interface{}) (bool, []string) {
 }
 
 func cleanMsg(m map[string]interface{}) map[string]interface{} {
-	ignoredKeys := []string{"messageId", "timestamp", "receivedAt", "sentAt", "originalTimestamp", "channel", "version", "projectId", "writeKey", "_metadata"}
+	ignoredKeys := []string{"messageId", "timestamp", "receivedAt", "sentAt", "originalTimestamp", "channel", "version", "projectId", "writeKey", "_metadata", "instanceId"}
 	m = delete(m, ignoredKeys...)
 	if _, ok := m["context"].(map[string]interface{}); ok {
 		m["context"] = delete(m["context"].(map[string]interface{}), "library")
